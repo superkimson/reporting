@@ -150,6 +150,9 @@ export function GrowthChart({
               dot={{ r: 3 }}
               activeDot={{ r: 5 }}
               connectNulls
+              isAnimationActive
+              animationDuration={200}
+              animationEasing="ease-out"
             />
           ))}
         </LineChart>

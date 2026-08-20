@@ -10,16 +10,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { createEntry } from "@/actions/entries";
 import { entryFormSchema, type EntryFormValues } from "@/lib/validation";
-import { PLATFORM_LIST, PERIOD_TYPE_LABELS } from "@/lib/platforms";
+import { PLATFORM_LIST } from "@/lib/platforms";
 import type { Platform } from "@/generated/prisma/enums";
 
 function todayIsoDate() {
@@ -90,16 +83,12 @@ function PlatformForm({
   const {
     register,
     handleSubmit,
-    watch,
-    setValue,
     reset,
     formState: { errors, isSubmitting },
   } = useForm<EntryFormValues>({
     resolver: zodResolver(entryFormSchema),
     defaultValues: defaultValuesFor(platform),
   });
-
-  const periodType = watch("periodType");
 
   async function onSubmit(values: EntryFormValues) {
     const result = await createEntry(values);
@@ -114,37 +103,12 @@ function PlatformForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="max-w-2xl space-y-6">
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label>Période</Label>
-          <Select
-            value={periodType}
-            onValueChange={(value) => setValue("periodType", value as "WEEKLY" | "MONTHLY")}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue>
-                {(value: string) =>
-                  PERIOD_TYPE_LABELS[value as "WEEKLY" | "MONTHLY"] ?? value
-                }
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {Object.entries(PERIOD_TYPE_LABELS).map(([value, label]) => (
-                <SelectItem key={value} value={value}>
-                  {label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="periodDate">Date</Label>
-          <Input id="periodDate" type="date" {...register("periodDate")} />
-          {errors.periodDate && (
-            <p className="text-xs text-destructive">{errors.periodDate.message}</p>
-          )}
-        </div>
+      <div className="max-w-48 space-y-2">
+        <Label htmlFor="periodDate">Date</Label>
+        <Input id="periodDate" type="date" {...register("periodDate")} />
+        {errors.periodDate && (
+          <p className="text-xs text-destructive">{errors.periodDate.message}</p>
+        )}
       </div>
 
       <div className="grid grid-cols-2 gap-4">

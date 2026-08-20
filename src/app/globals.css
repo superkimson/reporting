@@ -75,7 +75,7 @@
   --chart-4: #008300;
   --chart-5: #4a3aa7;
   --chart-6: #e34948;
-  --brand-instagram: #e4405f;
+  --brand-instagram: #ff4fa3;
   --brand-facebook: #1877f2;
   --brand-youtube: #ff0000;
   --brand-tiktok: #000000;
@@ -137,5 +137,15 @@
   }
   html {
     @apply font-sans;
+  }
+
+  /* Masque les flèches d'incrémentation des champs numériques. */
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
   }
 }
