@@ -1,69 +1,85 @@
-import Image from "next/image";
+import { KpiCard } from "@/components/kpi-card";
+import { GrowthChart } from "@/components/growth-chart";
+import { EngagementChart } from "@/components/engagement-chart";
+import { PlatformSummaryCard } from "@/components/platform-summary-card";
+import { EntriesTable } from "@/components/entries-table";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  getDashboardData,
+  getGrowthSeries,
+  getEngagementSeries,
+  getAllEntries,
+} from "@/lib/queries";
+import { formatCompactNumber } from "@/lib/metrics";
 
-export default function Home() {
+export default async function DashboardPage() {
+  const [{ kpis, summaries }, growthSeries, engagementSeries, allEntries] = await Promise.all([
+    getDashboardData(),
+    getGrowthSeries(),
+    getEngagementSeries(),
+    getAllEntries(),
+  ]);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">Vue d&apos;ensemble</h1>
+        <p className="text-muted-foreground">
+          Suivi consolidé de tous vos réseaux sociaux.
+        </p>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-3">
+        <KpiCard
+          title="Abonnés totaux"
+          value={formatCompactNumber(kpis.totalFollowers)}
+          evolution={kpis.totalFollowersEvolution}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+        <KpiCard
+          title="Portée globale"
+          value={formatCompactNumber(kpis.totalImpressions)}
+          evolution={kpis.totalImpressionsEvolution}
+        />
+        <KpiCard
+          title="Engagement moyen"
+          value={`${kpis.avgEngagementRate.toFixed(1)}%`}
+          evolution={kpis.avgEngagementRateEvolution}
+        />
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Croissance des abonnés</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <GrowthChart data={growthSeries} />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Vues et engagements, tous réseaux confondus</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <EngagementChart data={engagementSeries} />
+        </CardContent>
+      </Card>
+
+      <div>
+        <h2 className="mb-4 text-lg font-semibold tracking-tight">Détail par réseau</h2>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {summaries.map((summary) => (
+            <PlatformSummaryCard key={summary.platform} summary={summary} />
+          ))}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </div>
+
+      <div>
+        <h2 className="mb-4 text-lg font-semibold tracking-tight">
+          Historique complet des saisies
+        </h2>
+        <EntriesTable entries={allEntries} showPlatformFilter exportFileName="statistiques" />
+      </div>
     </div>
   );
 }
