@@ -6,10 +6,9 @@ export interface PlatformConfig {
   id: Platform;
   label: string;
   icon: IconType;
-  /** Couleur de marque, utilisée uniquement pour les petits repères UI (icônes, nav). */
+  /** Couleur de marque (icônes, nav ET courbes du graphique) — référence une
+   *  variable CSS pour pouvoir s'adapter au mode sombre (ex: TikTok). */
   color: string;
-  /** Couleur de série pour les graphiques (palette catégorielle validée CVD/contraste). */
-  chartVar: string;
   followersLabel: string;
   impressionsLabel: string;
   engagementsLabel: string;
@@ -21,8 +20,7 @@ export const PLATFORMS: Record<Platform, PlatformConfig> = {
     id: "INSTAGRAM",
     label: "Instagram",
     icon: FaInstagram,
-    color: "#E4405F",
-    chartVar: "var(--chart-3)",
+    color: "var(--brand-instagram)",
     followersLabel: "Abonnés",
     impressionsLabel: "Impressions",
     engagementsLabel: "Engagements",
@@ -32,8 +30,7 @@ export const PLATFORMS: Record<Platform, PlatformConfig> = {
     id: "FACEBOOK",
     label: "Facebook",
     icon: FaFacebook,
-    color: "#1877F2",
-    chartVar: "var(--chart-4)",
+    color: "var(--brand-facebook)",
     followersLabel: "Abonnés",
     impressionsLabel: "Impressions",
     engagementsLabel: "Engagements",
@@ -43,8 +40,7 @@ export const PLATFORMS: Record<Platform, PlatformConfig> = {
     id: "YOUTUBE",
     label: "YouTube",
     icon: FaYoutube,
-    color: "#FF0000",
-    chartVar: "var(--chart-5)",
+    color: "var(--brand-youtube)",
     followersLabel: "Abonnés",
     impressionsLabel: "Vues totales",
     engagementsLabel: "Engagements",
@@ -54,8 +50,7 @@ export const PLATFORMS: Record<Platform, PlatformConfig> = {
     id: "TIKTOK",
     label: "TikTok",
     icon: FaTiktok,
-    color: "#000000",
-    chartVar: "var(--chart-6)",
+    color: "var(--brand-tiktok)",
     followersLabel: "Abonnés",
     impressionsLabel: "Vues totales",
     engagementsLabel: "Engagements",
