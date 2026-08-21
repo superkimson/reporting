@@ -142,10 +142,22 @@ export function GrowthChart({
           />
           {seriesConfigs.length > 1 && (
             <Legend
-              formatter={(value: string) =>
-                PLATFORM_LIST.find((p) => p.id === value)?.label ?? value
-              }
-              wrapperStyle={{ fontSize: 12 }}
+              // Recharts trie sinon la légende alphabétiquement par dataKey : un
+              // contenu personnalisé impose l'ordre de seriesConfigs (celui des
+              // filtres réseau) plutôt que de dépendre de son tri interne.
+              content={() => (
+                <ul className="mt-2 flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs">
+                  {seriesConfigs.map((config) => (
+                    <li key={config.id} className="flex items-center gap-1.5">
+                      <span
+                        className="inline-block size-2 rounded-full"
+                        style={{ backgroundColor: config.color }}
+                      />
+                      <span className="text-muted-foreground">{config.label}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
             />
           )}
           {seriesConfigs.map((config) => (
