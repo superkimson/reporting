@@ -80,7 +80,7 @@
   --brand-youtube: #ff0000;
   --brand-tiktok: #000000;
   --brand-whatsapp: #25d366;
-  --brand-dailymotion: #9ca3af;
+  --brand-dailymotion: #666666;
   --radius: 0.625rem;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
@@ -117,11 +117,8 @@
   --chart-4: #008300;
   --chart-5: #9085e9;
   --chart-6: #e66767;
-  /* Le noir de marque TikTok est invisible sur fond sombre : on bascule sur
-     son accent rose/rouge officiel pour rester identifiable. */
-  --brand-tiktok: #fe2c55;
-  /* Le gris clair de Dailymotion est trop pâle sur fond sombre : on l'éclaircit. */
-  --brand-dailymotion: #c2c5cc;
+  /* Le noir de marque TikTok est invisible sur fond sombre : on bascule sur du blanc cassé. */
+  --brand-tiktok: #f5f5f5;
   --sidebar: oklch(0.205 0 0);
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: oklch(0.488 0.243 264.376);

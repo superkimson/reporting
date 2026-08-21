@@ -24,10 +24,9 @@ function formatMonth(value: string) {
   return format(parseISO(value), "MMM yy", { locale: fr });
 }
 
-type RangeKey = "1M" | "3M" | "6M" | "YTD" | "1Y" | "MAX";
+type RangeKey = "3M" | "6M" | "YTD" | "1Y" | "MAX";
 
 const RANGE_OPTIONS: { key: RangeKey; label: string }[] = [
-  { key: "1M", label: "1M" },
   { key: "3M", label: "3M" },
   { key: "6M", label: "6M" },
   { key: "YTD", label: "YTD" },
@@ -35,22 +34,32 @@ const RANGE_OPTIONS: { key: RangeKey; label: string }[] = [
   { key: "MAX", label: "Max" },
 ];
 
-function getRangeCutoff(range: RangeKey): Date | null {
+function pad(n: number) {
+  return String(n).padStart(2, "0");
+}
+
+// Comparaison en chaîne "YYYY-MM-01" plutôt qu'en objets Date : periodDate est
+// déjà normalisé sous cette forme, ça évite tout décalage de fuseau horaire
+// entre le calcul de la borne (locale) et le parsing des points (UTC).
+function getRangeCutoff(range: RangeKey): string | null {
   const now = new Date();
-  const year = now.getUTCFullYear();
-  const month = now.getUTCMonth();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+
+  function monthsAgo(count: number) {
+    const d = new Date(year, month - count, 1);
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-01`;
+  }
 
   switch (range) {
-    case "1M":
-      return new Date(Date.UTC(year, month - 1, 1));
     case "3M":
-      return new Date(Date.UTC(year, month - 3, 1));
+      return monthsAgo(3);
     case "6M":
-      return new Date(Date.UTC(year, month - 6, 1));
+      return monthsAgo(6);
     case "YTD":
-      return new Date(Date.UTC(year, 0, 1));
+      return `${year}-01-01`;
     case "1Y":
-      return new Date(Date.UTC(year - 1, month, 1));
+      return monthsAgo(12);
     case "MAX":
       return null;
   }
@@ -73,7 +82,7 @@ export function GrowthChart({
   const cutoff = useMemo(() => getRangeCutoff(range), [range]);
   const filteredData = useMemo(() => {
     if (!cutoff) return data;
-    return data.filter((point) => parseISO(point.periodDate) >= cutoff);
+    return data.filter((point) => point.periodDate >= cutoff);
   }, [data, cutoff]);
 
   return (
