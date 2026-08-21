@@ -18,6 +18,7 @@ export function EntriesPdfDocument({ entries }: { entries: Entry[] }) {
 
         <View style={[styles.row, styles.headerRow]}>
           <Text style={styles.cell}>Réseau</Text>
+          <Text style={styles.cell}>Édition</Text>
           <Text style={styles.cell}>Période</Text>
           <Text style={styles.cell}>Date</Text>
           <Text style={styles.cell}>Abonnés</Text>
@@ -32,6 +33,7 @@ export function EntriesPdfDocument({ entries }: { entries: Entry[] }) {
           return (
             <View style={styles.row} key={entry.id}>
               <Text style={styles.cell}>{config.label}</Text>
+              <Text style={styles.cell}>{entry.edition}</Text>
               <Text style={styles.cell}>{PERIOD_TYPE_LABELS[entry.periodType]}</Text>
               <Text style={styles.cell}>{entry.periodDate.toISOString().slice(0, 10)}</Text>
               <Text style={styles.cell}>{entry.followers}</Text>

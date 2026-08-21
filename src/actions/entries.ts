@@ -32,14 +32,16 @@ export async function createEntry(values: EntryFormValues): Promise<ActionResult
   try {
     await prisma.entry.upsert({
       where: {
-        platform_periodType_periodDate: {
+        platform_edition_periodType_periodDate: {
           platform: data.platform,
+          edition: data.edition,
           periodType: data.periodType,
           periodDate,
         },
       },
       create: {
         platform: data.platform,
+        edition: data.edition,
         periodType: data.periodType,
         periodDate,
         followers: data.followers,

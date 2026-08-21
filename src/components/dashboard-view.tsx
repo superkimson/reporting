@@ -7,9 +7,10 @@ import { GrowthChart } from "@/components/growth-chart";
 import { EngagementChart } from "@/components/engagement-chart";
 import { PlatformSummaryCard } from "@/components/platform-summary-card";
 import { EntriesTable } from "@/components/entries-table";
+import { FilterChipGroup, type ChipSelection } from "@/components/filter-chip-group";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
 import { PLATFORM_LIST } from "@/lib/platforms";
+import { EDITION_LIST } from "@/lib/editions";
 import { formatCompactNumber } from "@/lib/metrics";
 import {
   computeDashboardSummary,
@@ -17,89 +18,29 @@ import {
   computeEngagementSeries,
 } from "@/lib/dashboard-metrics";
 import type { Entry } from "@/generated/prisma/client";
-import type { Platform } from "@/generated/prisma/enums";
-
-type Selection = "ALL" | Platform[];
-
-function PlatformFilterBar({
-  selection,
-  onChange,
-}: {
-  selection: Selection;
-  onChange: (next: Selection) => void;
-}) {
-  function toggleAll() {
-    onChange("ALL");
-  }
-
-  function togglePlatform(platform: Platform) {
-    if (selection === "ALL") {
-      onChange([platform]);
-      return;
-    }
-    const next = selection.includes(platform)
-      ? selection.filter((p) => p !== platform)
-      : [...selection, platform];
-    onChange(next.length === 0 ? "ALL" : next);
-  }
-
-  return (
-    <div className="flex flex-wrap items-center gap-1">
-      <button
-        type="button"
-        onClick={toggleAll}
-        aria-pressed={selection === "ALL"}
-        className={cn(
-          "rounded-full border px-3 py-1.5 text-sm font-medium transition-colors",
-          selection === "ALL"
-            ? "border-foreground bg-foreground text-background"
-            : "border-border text-muted-foreground hover:text-foreground"
-        )}
-      >
-        All
-      </button>
-
-      {PLATFORM_LIST.map((config) => {
-        const Icon = config.icon;
-        const isActive = selection !== "ALL" && selection.includes(config.id);
-        return (
-          <button
-            key={config.id}
-            type="button"
-            onClick={() => togglePlatform(config.id)}
-            aria-pressed={isActive}
-            title={config.label}
-            aria-label={config.label}
-            className={cn(
-              "flex items-center justify-center rounded-full border p-2 transition-colors",
-              isActive
-                ? "border-foreground bg-muted"
-                : "border-border text-muted-foreground hover:bg-muted/50"
-            )}
-          >
-            <Icon className="size-4" style={{ color: config.color }} />
-          </button>
-        );
-      })}
-    </div>
-  );
-}
+import type { Platform, Edition } from "@/generated/prisma/enums";
 
 export function DashboardView({ entries }: { entries: Entry[] }) {
-  const [selection, setSelection] = useState<Selection>("ALL");
+  const [platformSelection, setPlatformSelection] = useState<ChipSelection<Platform>>("ALL");
+  const [editionSelection, setEditionSelection] = useState<ChipSelection<Edition>>("ALL");
 
   const selectedPlatforms = useMemo(
     () =>
-      selection === "ALL"
+      platformSelection === "ALL"
         ? PLATFORM_LIST
-        : PLATFORM_LIST.filter((config) => selection.includes(config.id)),
-    [selection]
+        : PLATFORM_LIST.filter((config) => platformSelection.includes(config.id)),
+    [platformSelection]
   );
 
   const filteredEntries = useMemo(() => {
-    if (selection === "ALL") return entries;
-    return entries.filter((entry) => selection.includes(entry.platform));
-  }, [entries, selection]);
+    return entries.filter((entry) => {
+      const matchesPlatform =
+        platformSelection === "ALL" || platformSelection.includes(entry.platform);
+      const matchesEdition =
+        editionSelection === "ALL" || editionSelection.includes(entry.edition);
+      return matchesPlatform && matchesEdition;
+    });
+  }, [entries, platformSelection, editionSelection]);
 
   const { kpis, summaries } = useMemo(
     () => computeDashboardSummary(filteredEntries, selectedPlatforms),
@@ -120,7 +61,33 @@ export function DashboardView({ entries }: { entries: Entry[] }) {
             Suivi consolidé de tous vos réseaux sociaux.
           </p>
         </div>
-        <PlatformFilterBar selection={selection} onChange={setSelection} />
+
+        <div className="flex flex-wrap items-center gap-3">
+          <FilterChipGroup
+            options={PLATFORM_LIST.map((config) => {
+              const Icon = config.icon;
+              return {
+                id: config.id,
+                label: config.label,
+                content: <Icon className="size-4" style={{ color: config.color }} />,
+              };
+            })}
+            selection={platformSelection}
+            onChange={setPlatformSelection}
+          />
+
+          <span className="h-6 w-px bg-border" />
+
+          <FilterChipGroup
+            options={EDITION_LIST.map((config) => ({
+              id: config.id,
+              label: config.label,
+              content: <span className="text-xs font-semibold">{config.shortLabel}</span>,
+            }))}
+            selection={editionSelection}
+            onChange={setEditionSelection}
+          />
+        </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">

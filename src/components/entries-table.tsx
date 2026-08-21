@@ -118,6 +118,7 @@ export function EntriesTable({
           <TableHeader>
             <TableRow>
               {showPlatformFilter && <TableHead>Réseau</TableHead>}
+              <TableHead>Édition</TableHead>
               <TableHead>Période</TableHead>
               <TableHead>Date</TableHead>
               <TableHead className="text-right">Abonnés</TableHead>
@@ -132,7 +133,7 @@ export function EntriesTable({
             {filtered.length === 0 && (
               <TableRow>
                 <TableCell
-                  colSpan={showPlatformFilter ? 9 : 8}
+                  colSpan={showPlatformFilter ? 10 : 9}
                   className="py-8 text-center text-muted-foreground"
                 >
                   Aucune saisie pour le moment.
@@ -146,6 +147,7 @@ export function EntriesTable({
                   {showPlatformFilter && (
                     <TableCell className="font-medium">{config.label}</TableCell>
                   )}
+                  <TableCell className="text-muted-foreground">{entry.edition}</TableCell>
                   <TableCell className="text-muted-foreground">
                     {PERIOD_TYPE_LABELS[entry.periodType]}
                   </TableCell>

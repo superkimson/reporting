@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { PrismaLibSql } from "@prisma/adapter-libsql";
 import { PrismaClient } from "../src/generated/prisma/client";
-import { Platform, PeriodType } from "../src/generated/prisma/enums";
+import { Platform, Edition, PeriodType } from "../src/generated/prisma/enums";
 
 const adapter = new PrismaLibSql({
   url: process.env.DATABASE_URL ?? "file:./dev.db",
@@ -27,6 +27,13 @@ const STARTING_POINTS: Record<
   DAILYMOTION: { followers: 650, growth: 0.03, viewMultiplier: 20, engagementRate: 3.0 },
 };
 
+// AutoGids (marché flamand) part généralement avec une audience un peu plus large
+// que Moniteur Automobile (marché francophone), en cohérence avec la démographie belge.
+const EDITION_FOLLOWERS_MULTIPLIER: Record<Edition, number> = {
+  MA: 1,
+  AG: 1.15,
+};
+
 function randomBetween(min: number, max: number) {
   return min + Math.random() * (max - min);
 }
@@ -46,39 +53,43 @@ async function main() {
   for (const platform of Object.values(Platform)) {
     const config = STARTING_POINTS[platform];
     const hasFullMetrics = FULL_METRICS_PLATFORMS.has(platform);
-    let followers = config.followers;
 
-    // On part du mois le plus ancien vers le plus récent pour simuler une croissance progressive.
-    for (let i = MONTHS_OF_HISTORY - 1; i >= 0; i--) {
-      const monthlyNoise = randomBetween(-0.02, 0.03);
-      followers = Math.round(followers * (1 + config.growth + monthlyNoise));
+    for (const edition of Object.values(Edition)) {
+      let followers = Math.round(config.followers * EDITION_FOLLOWERS_MULTIPLIER[edition]);
 
-      const views = Math.round(followers * config.viewMultiplier * randomBetween(0.8, 1.3));
+      // On part du mois le plus ancien vers le plus récent pour simuler une croissance progressive.
+      for (let i = MONTHS_OF_HISTORY - 1; i >= 0; i--) {
+        const monthlyNoise = randomBetween(-0.02, 0.03);
+        followers = Math.round(followers * (1 + config.growth + monthlyNoise));
 
-      let reach: number | null = null;
-      let interactions: number | null = null;
-      let engagementRate: number | null = null;
+        const views = Math.round(followers * config.viewMultiplier * randomBetween(0.8, 1.3));
 
-      if (hasFullMetrics) {
-        reach = Math.round(views * randomBetween(0.6, 0.9));
-        interactions = Math.round(
-          views * (config.engagementRate / 100) * randomBetween(0.85, 1.2)
-        );
-        engagementRate = (interactions / views) * 100;
+        let reach: number | null = null;
+        let interactions: number | null = null;
+        let engagementRate: number | null = null;
+
+        if (hasFullMetrics) {
+          reach = Math.round(views * randomBetween(0.6, 0.9));
+          interactions = Math.round(
+            views * (config.engagementRate / 100) * randomBetween(0.85, 1.2)
+          );
+          engagementRate = (interactions / views) * 100;
+        }
+
+        await prisma.entry.create({
+          data: {
+            platform,
+            edition,
+            periodType: PeriodType.MONTHLY,
+            periodDate: firstOfMonth(i),
+            followers,
+            views,
+            reach,
+            interactions,
+            engagementRate,
+          },
+        });
       }
-
-      await prisma.entry.create({
-        data: {
-          platform,
-          periodType: PeriodType.MONTHLY,
-          periodDate: firstOfMonth(i),
-          followers,
-          views,
-          reach,
-          interactions,
-          engagementRate,
-        },
-      });
     }
   }
 

@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export const entryFormSchema = z.object({
   platform: z.enum(["INSTAGRAM", "FACEBOOK", "TIKTOK", "WHATSAPP", "YOUTUBE", "DAILYMOTION"]),
+  edition: z.enum(["MA", "AG"]),
   periodType: z.enum(["WEEKLY", "MONTHLY"]),
   periodDate: z.string().min(1, "La date est requise"),
   followers: z.coerce.number().int().min(0, "Doit être positif"),

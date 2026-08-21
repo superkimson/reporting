@@ -6,6 +6,7 @@ function toRow(entry: Entry) {
   const config = PLATFORMS[entry.platform];
   return {
     Réseau: config.label,
+    Édition: entry.edition,
     Période: PERIOD_TYPE_LABELS[entry.periodType],
     Date: entry.periodDate.toISOString().slice(0, 10),
     [config.followersLabel]: entry.followers,
