@@ -20,7 +20,13 @@ import {
 import type { Entry } from "@/generated/prisma/client";
 import type { Platform, Edition } from "@/generated/prisma/enums";
 
-export function DashboardView({ entries }: { entries: Entry[] }) {
+export function DashboardView({
+  entries,
+  isEditor,
+}: {
+  entries: Entry[];
+  isEditor: boolean;
+}) {
   const [platformSelection, setPlatformSelection] = useState<ChipSelection<Platform>>("ALL");
   const [editionSelection, setEditionSelection] = useState<ChipSelection<Edition>>("ALL");
 
@@ -147,6 +153,7 @@ export function DashboardView({ entries }: { entries: Entry[] }) {
           entries={filteredEntries}
           showPlatformFilter
           exportFileName="statistiques"
+          isEditor={isEditor}
         />
       </div>
     </div>

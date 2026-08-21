@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { MainNav } from "@/components/main-nav";
 import { Toaster } from "@/components/ui/sonner";
+import { isEditor } from "@/lib/auth";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,7 +29,9 @@ export const metadata: Metadata = {
   description: "Suivi des statistiques des réseaux sociaux",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const editor = await isEditor();
+
   return (
     <html
       lang="fr"
@@ -37,7 +40,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <MainNav />
+          <MainNav isEditor={editor} />
           <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-8">{children}</main>
           <Toaster />
         </ThemeProvider>

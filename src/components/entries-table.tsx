@@ -32,10 +32,12 @@ export function EntriesTable({
   entries,
   showPlatformFilter = false,
   exportFileName = "statistiques",
+  isEditor = false,
 }: {
   entries: Entry[];
   showPlatformFilter?: boolean;
   exportFileName?: string;
+  isEditor?: boolean;
 }) {
   const router = useRouter();
   const [platformFilter, setPlatformFilter] = useState<Platform | "ALL">("ALL");
@@ -126,14 +128,14 @@ export function EntriesTable({
               <TableHead className="text-right">Portée</TableHead>
               <TableHead className="text-right">Interactions</TableHead>
               <TableHead className="text-right">Taux</TableHead>
-              <TableHead className="w-10" />
+              {isEditor && <TableHead className="w-10" />}
             </TableRow>
           </TableHeader>
           <TableBody>
             {filtered.length === 0 && (
               <TableRow>
                 <TableCell
-                  colSpan={showPlatformFilter ? 10 : 9}
+                  colSpan={8 + (showPlatformFilter ? 1 : 0) + (isEditor ? 1 : 0)}
                   className="py-8 text-center text-muted-foreground"
                 >
                   Aucune saisie pour le moment.
@@ -169,17 +171,19 @@ export function EntriesTable({
                   <TableCell className="text-right tabular-nums">
                     {entry.engagementRate ? `${entry.engagementRate.toFixed(1)}%` : "—"}
                   </TableCell>
-                  <TableCell>
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      disabled={isPending}
-                      onClick={() => handleDelete(entry.id)}
-                      aria-label="Supprimer"
-                    >
-                      <Trash2 className="size-3.5" />
-                    </Button>
-                  </TableCell>
+                  {isEditor && (
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        disabled={isPending}
+                        onClick={() => handleDelete(entry.id)}
+                        aria-label="Supprimer"
+                      >
+                        <Trash2 className="size-3.5" />
+                      </Button>
+                    </TableCell>
+                  )}
                 </TableRow>
               );
             })}

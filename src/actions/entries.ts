@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { isEditor } from "@/lib/auth";
 import { computeEngagementRate, normalizePeriodDate } from "@/lib/metrics";
 import { entryFormSchema, type EntryFormValues } from "@/lib/validation";
 
@@ -20,6 +21,10 @@ function revalidateAffectedPaths(platform: string) {
 // L'unicité [platform, periodType, periodDate] permet de corriger une saisie existante
 // simplement en la re-soumettant, sans créer de doublon.
 export async function createEntry(values: EntryFormValues): Promise<ActionResult> {
+  if (!(await isEditor())) {
+    return { success: false, error: "Non autorisé" };
+  }
+
   const parsed = entryFormSchema.safeParse(values);
   if (!parsed.success) {
     return { success: false, error: parsed.error.issues[0]?.message ?? "Données invalides" };
@@ -68,6 +73,10 @@ export async function createEntry(values: EntryFormValues): Promise<ActionResult
 }
 
 export async function deleteEntry(id: string): Promise<ActionResult> {
+  if (!(await isEditor())) {
+    return { success: false, error: "Non autorisé" };
+  }
+
   try {
     const entry = await prisma.entry.delete({ where: { id } });
     revalidateAffectedPaths(entry.platform);

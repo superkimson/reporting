@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { PlatformView } from "@/components/platform-view";
 import { PLATFORM_LIST } from "@/lib/platforms";
 import { getEntriesByPlatform } from "@/lib/queries";
+import { isEditor } from "@/lib/auth";
 import type { Platform } from "@/generated/prisma/enums";
 
 export function generateStaticParams() {
@@ -23,7 +24,7 @@ export default async function PlatformPage({
   const platform = resolvePlatform(slug);
   if (!platform) notFound();
 
-  const entries = await getEntriesByPlatform(platform);
+  const [entries, editor] = await Promise.all([getEntriesByPlatform(platform), isEditor()]);
 
-  return <PlatformView platform={platform} entries={entries} />;
+  return <PlatformView platform={platform} entries={entries} isEditor={editor} />;
 }

@@ -14,7 +14,15 @@ import { computeDashboardSummary, computeGrowthSeries } from "@/lib/dashboard-me
 import type { Entry } from "@/generated/prisma/client";
 import type { Edition, Platform } from "@/generated/prisma/enums";
 
-export function PlatformView({ platform, entries }: { platform: Platform; entries: Entry[] }) {
+export function PlatformView({
+  platform,
+  entries,
+  isEditor,
+}: {
+  platform: Platform;
+  entries: Entry[];
+  isEditor: boolean;
+}) {
   const config = PLATFORMS[platform];
   const [editionSelection, setEditionSelection] = useState<ChipSelection<Edition>>("ALL");
   const Icon = config.icon;
@@ -110,7 +118,11 @@ export function PlatformView({ platform, entries }: { platform: Platform; entrie
 
       <div>
         <h2 className="mb-4 text-lg font-semibold tracking-tight">Historique des saisies</h2>
-        <EntriesTable entries={filteredEntries} exportFileName={config.id.toLowerCase()} />
+        <EntriesTable
+          entries={filteredEntries}
+          exportFileName={config.id.toLowerCase()}
+          isEditor={isEditor}
+        />
       </div>
     </div>
   );
