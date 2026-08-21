@@ -71,6 +71,7 @@ export function DashboardView({ entries }: { entries: Entry[] }) {
             }))}
             selection={editionSelection}
             onChange={setEditionSelection}
+            exclusive
           />
 
           <span className="h-6 w-px bg-border" />

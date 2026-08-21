@@ -11,25 +11,33 @@ export interface ChipOption<T extends string> {
   label: string;
 }
 
-// Groupe de filtres "All" + options cumulables : sélectionner une option
-// désélectionne "All" ; en resélectionner plusieurs les cumule ; vider la
-// sélection revient automatiquement à "All".
+// Groupe de filtres "All" + options. Par défaut cumulables : sélectionner une
+// option désélectionne "All", en resélectionner plusieurs les cumule, vider la
+// sélection revient à "All". En mode `exclusive`, une seule option (ou "All")
+// peut être active à la fois — utile quand les options s'excluent mutuellement
+// (ex: MA vs AG, jamais les deux en même temps).
 export function FilterChipGroup<T extends string>({
   options,
   selection,
   onChange,
   allLabel = "All",
+  exclusive = false,
 }: {
   options: ChipOption<T>[];
   selection: ChipSelection<T>;
   onChange: (next: ChipSelection<T>) => void;
   allLabel?: string;
+  exclusive?: boolean;
 }) {
   function toggleAll() {
     onChange("ALL");
   }
 
   function toggleOption(id: T) {
+    if (exclusive) {
+      onChange([id]);
+      return;
+    }
     if (selection === "ALL") {
       onChange([id]);
       return;

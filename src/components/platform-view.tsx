@@ -52,6 +52,7 @@ export function PlatformView({ platform, entries }: { platform: Platform; entrie
           }))}
           selection={editionSelection}
           onChange={setEditionSelection}
+          exclusive
         />
       </div>
 
