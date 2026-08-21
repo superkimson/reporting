@@ -64,6 +64,18 @@ export function DashboardView({ entries }: { entries: Entry[] }) {
 
         <div className="flex flex-wrap items-center gap-3">
           <FilterChipGroup
+            options={EDITION_LIST.map((config) => ({
+              id: config.id,
+              label: config.label,
+              content: <span className="text-xs font-semibold">{config.shortLabel}</span>,
+            }))}
+            selection={editionSelection}
+            onChange={setEditionSelection}
+          />
+
+          <span className="h-6 w-px bg-border" />
+
+          <FilterChipGroup
             options={PLATFORM_LIST.map((config) => {
               const Icon = config.icon;
               return {
@@ -74,18 +86,6 @@ export function DashboardView({ entries }: { entries: Entry[] }) {
             })}
             selection={platformSelection}
             onChange={setPlatformSelection}
-          />
-
-          <span className="h-6 w-px bg-border" />
-
-          <FilterChipGroup
-            options={EDITION_LIST.map((config) => ({
-              id: config.id,
-              label: config.label,
-              content: <span className="text-xs font-semibold">{config.shortLabel}</span>,
-            }))}
-            selection={editionSelection}
-            onChange={setEditionSelection}
           />
         </div>
       </div>
