@@ -5,7 +5,8 @@ import { GrowthChart } from "@/components/growth-chart";
 import { EntriesTable } from "@/components/entries-table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PLATFORMS, PLATFORM_LIST } from "@/lib/platforms";
-import { getDashboardData, getEntriesByPlatform, getGrowthSeries } from "@/lib/queries";
+import { getAllEntries, getEntriesByPlatform } from "@/lib/queries";
+import { computeDashboardSummary, computeGrowthSeries } from "@/lib/dashboard-metrics";
 import { formatCompactNumber } from "@/lib/metrics";
 import type { Platform } from "@/generated/prisma/enums";
 
@@ -30,12 +31,13 @@ export default async function PlatformPage({
   const config = PLATFORMS[platform];
   const Icon = config.icon;
 
-  const [{ summaries }, entries, growthSeries] = await Promise.all([
-    getDashboardData(),
+  const [allEntries, entries] = await Promise.all([
+    getAllEntries(),
     getEntriesByPlatform(platform),
-    getGrowthSeries(),
   ]);
 
+  const { summaries } = computeDashboardSummary(allEntries, PLATFORM_LIST);
+  const growthSeries = computeGrowthSeries(allEntries);
   const summary = summaries.find((s) => s.platform === platform)!;
 
   return (
@@ -56,25 +58,33 @@ export default async function PlatformPage({
             evolution={summary.followersEvolution}
           />
           <KpiCard
-            title={config.impressionsLabel}
-            value={formatCompactNumber(summary.current.impressions)}
-            evolution={summary.impressionsEvolution}
+            title={config.viewsLabel}
+            value={formatCompactNumber(summary.current.views)}
+            evolution={summary.viewsEvolution}
           />
-          <KpiCard
-            title={config.engagementsLabel}
-            value={formatCompactNumber(summary.current.engagements)}
-            evolution={summary.engagementsEvolution}
-          />
-          <KpiCard
-            title="Taux d'engagement"
-            value={
-              summary.current.engagementRate
-                ? `${summary.current.engagementRate.toFixed(1)}%`
-                : "—"
-            }
-            evolution={{ value: null, direction: "flat" }}
-            comparisonLabel="sur la dernière période"
-          />
+          {config.hasFullMetrics && (
+            <>
+              <KpiCard
+                title={config.interactionsLabel}
+                value={
+                  summary.current.interactions != null
+                    ? formatCompactNumber(summary.current.interactions)
+                    : "—"
+                }
+                evolution={summary.interactionsEvolution}
+              />
+              <KpiCard
+                title="Taux d'engagement"
+                value={
+                  summary.current.engagementRate
+                    ? `${summary.current.engagementRate.toFixed(1)}%`
+                    : "—"
+                }
+                evolution={{ value: null, direction: "flat" }}
+                comparisonLabel="sur la dernière période"
+              />
+            </>
+          )}
         </div>
       ) : (
         <p className="text-muted-foreground">

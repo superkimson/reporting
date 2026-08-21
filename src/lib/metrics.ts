@@ -27,11 +27,11 @@ export function formatEvolution(evolution: Evolution): string {
 }
 
 export function computeEngagementRate(
-  engagements: number,
-  impressions: number
+  interactions: number | undefined | null,
+  views: number
 ): number | null {
-  if (!impressions) return null;
-  return (engagements / impressions) * 100;
+  if (!views || interactions === undefined || interactions === null) return null;
+  return (interactions / views) * 100;
 }
 
 export function formatCompactNumber(value: number): string {

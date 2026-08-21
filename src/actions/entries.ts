@@ -26,7 +26,7 @@ export async function createEntry(values: EntryFormValues): Promise<ActionResult
   }
 
   const data = parsed.data;
-  const engagementRate = computeEngagementRate(data.engagements, data.impressions);
+  const engagementRate = computeEngagementRate(data.interactions, data.views);
   const periodDate = normalizePeriodDate(data.periodDate, data.periodType);
 
   try {
@@ -43,17 +43,17 @@ export async function createEntry(values: EntryFormValues): Promise<ActionResult
         periodType: data.periodType,
         periodDate,
         followers: data.followers,
-        impressions: data.impressions,
-        engagements: data.engagements,
+        views: data.views,
+        reach: data.reach ?? null,
+        interactions: data.interactions ?? null,
         engagementRate,
-        watchTimeMinutes: data.watchTimeMinutes ?? null,
       },
       update: {
         followers: data.followers,
-        impressions: data.impressions,
-        engagements: data.engagements,
+        views: data.views,
+        reach: data.reach ?? null,
+        interactions: data.interactions ?? null,
         engagementRate,
-        watchTimeMinutes: data.watchTimeMinutes ?? null,
       },
     });
 

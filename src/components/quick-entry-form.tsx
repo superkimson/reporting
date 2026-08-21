@@ -20,14 +20,15 @@ function todayIsoDate() {
 }
 
 function defaultValuesFor(platform: Platform): EntryFormValues {
+  const hasFullMetrics = PLATFORM_LIST.find((p) => p.id === platform)!.hasFullMetrics;
   return {
     platform,
     periodType: "MONTHLY",
     periodDate: todayIsoDate(),
     followers: 0,
-    impressions: 0,
-    engagements: 0,
-    watchTimeMinutes: undefined,
+    views: 0,
+    reach: hasFullMetrics ? 0 : undefined,
+    interactions: hasFullMetrics ? 0 : undefined,
   };
 }
 
@@ -102,7 +103,7 @@ function PlatformForm({
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="max-w-2xl space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="max-w-3xl space-y-6">
       <div className="max-w-48 space-y-2">
         <Label htmlFor="periodDate">Date</Label>
         <Input id="periodDate" type="date" {...register("periodDate")} />
@@ -111,8 +112,8 @@ function PlatformForm({
         )}
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
+      <div className={config.hasFullMetrics ? "flex flex-wrap gap-4" : "flex gap-4"}>
+        <div className="min-w-32 flex-1 space-y-2">
           <Label htmlFor="followers">{config.followersLabel}</Label>
           <Input id="followers" type="number" min={0} {...register("followers")} />
           {errors.followers && (
@@ -120,32 +121,30 @@ function PlatformForm({
           )}
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="impressions">{config.impressionsLabel}</Label>
-          <Input id="impressions" type="number" min={0} {...register("impressions")} />
-          {errors.impressions && (
-            <p className="text-xs text-destructive">{errors.impressions.message}</p>
-          )}
+        <div className="min-w-32 flex-1 space-y-2">
+          <Label htmlFor="views">{config.viewsLabel}</Label>
+          <Input id="views" type="number" min={0} {...register("views")} />
+          {errors.views && <p className="text-xs text-destructive">{errors.views.message}</p>}
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="engagements">{config.engagementsLabel}</Label>
-          <Input id="engagements" type="number" min={0} {...register("engagements")} />
-          {errors.engagements && (
-            <p className="text-xs text-destructive">{errors.engagements.message}</p>
-          )}
-        </div>
+        {config.hasFullMetrics && (
+          <>
+            <div className="min-w-32 flex-1 space-y-2">
+              <Label htmlFor="reach">{config.reachLabel}</Label>
+              <Input id="reach" type="number" min={0} {...register("reach")} />
+              {errors.reach && (
+                <p className="text-xs text-destructive">{errors.reach.message}</p>
+              )}
+            </div>
 
-        {config.hasWatchTime && (
-          <div className="space-y-2">
-            <Label htmlFor="watchTimeMinutes">Temps de visionnage (min)</Label>
-            <Input
-              id="watchTimeMinutes"
-              type="number"
-              min={0}
-              {...register("watchTimeMinutes")}
-            />
-          </div>
+            <div className="min-w-32 flex-1 space-y-2">
+              <Label htmlFor="interactions">{config.interactionsLabel}</Label>
+              <Input id="interactions" type="number" min={0} {...register("interactions")} />
+              {errors.interactions && (
+                <p className="text-xs text-destructive">{errors.interactions.message}</p>
+              )}
+            </div>
+          </>
         )}
       </div>
 

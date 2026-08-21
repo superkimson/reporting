@@ -121,8 +121,9 @@ export function EntriesTable({
               <TableHead>Période</TableHead>
               <TableHead>Date</TableHead>
               <TableHead className="text-right">Abonnés</TableHead>
-              <TableHead className="text-right">Impressions/Vues</TableHead>
-              <TableHead className="text-right">Engagements</TableHead>
+              <TableHead className="text-right">Vues</TableHead>
+              <TableHead className="text-right">Portée</TableHead>
+              <TableHead className="text-right">Interactions</TableHead>
               <TableHead className="text-right">Taux</TableHead>
               <TableHead className="w-10" />
             </TableRow>
@@ -131,7 +132,7 @@ export function EntriesTable({
             {filtered.length === 0 && (
               <TableRow>
                 <TableCell
-                  colSpan={showPlatformFilter ? 8 : 7}
+                  colSpan={showPlatformFilter ? 9 : 8}
                   className="py-8 text-center text-muted-foreground"
                 >
                   Aucune saisie pour le moment.
@@ -155,10 +156,13 @@ export function EntriesTable({
                     {formatCompactNumber(entry.followers)}
                   </TableCell>
                   <TableCell className="text-right tabular-nums">
-                    {formatCompactNumber(entry.impressions)}
+                    {formatCompactNumber(entry.views)}
                   </TableCell>
                   <TableCell className="text-right tabular-nums">
-                    {formatCompactNumber(entry.engagements)}
+                    {entry.reach != null ? formatCompactNumber(entry.reach) : "—"}
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums">
+                    {entry.interactions != null ? formatCompactNumber(entry.interactions) : "—"}
                   </TableCell>
                   <TableCell className="text-right tabular-nums">
                     {entry.engagementRate ? `${entry.engagementRate.toFixed(1)}%` : "—"}

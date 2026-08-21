@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { PLATFORMS } from "@/lib/platforms";
 import { formatCompactNumber, formatEvolution } from "@/lib/metrics";
-import type { PlatformSummary } from "@/lib/queries";
+import type { PlatformSummary } from "@/lib/dashboard-metrics";
 
 function EvolutionBadge({ evolution }: { evolution: PlatformSummary["followersEvolution"] }) {
   const isUp = evolution.direction === "up";
@@ -51,23 +51,27 @@ export function PlatformSummaryCard({ summary }: { summary: PlatformSummary }) {
             </div>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">{config.impressionsLabel}</span>
+            <span className="text-sm text-muted-foreground">{config.viewsLabel}</span>
             <div className="flex items-center gap-2">
               <span className="font-display text-sm font-bold tabular-nums">
-                {summary.current ? formatCompactNumber(summary.current.impressions) : "—"}
+                {summary.current ? formatCompactNumber(summary.current.views) : "—"}
               </span>
-              <EvolutionBadge evolution={summary.impressionsEvolution} />
+              <EvolutionBadge evolution={summary.viewsEvolution} />
             </div>
           </div>
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">{config.engagementsLabel}</span>
-            <div className="flex items-center gap-2">
-              <span className="font-display text-sm font-bold tabular-nums">
-                {summary.current ? formatCompactNumber(summary.current.engagements) : "—"}
-              </span>
-              <EvolutionBadge evolution={summary.engagementsEvolution} />
+          {config.hasFullMetrics && (
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">{config.interactionsLabel}</span>
+              <div className="flex items-center gap-2">
+                <span className="font-display text-sm font-bold tabular-nums">
+                  {summary.current?.interactions != null
+                    ? formatCompactNumber(summary.current.interactions)
+                    : "—"}
+                </span>
+                <EvolutionBadge evolution={summary.interactionsEvolution} />
+              </div>
             </div>
-          </div>
+          )}
         </CardContent>
       </Card>
     </Link>

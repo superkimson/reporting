@@ -13,21 +13,21 @@ import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
 
 import { formatCompactNumber } from "@/lib/metrics";
-import type { EngagementPoint } from "@/lib/queries";
+import type { EngagementPoint } from "@/lib/dashboard-metrics";
 
 function formatMonth(value: string) {
   return format(parseISO(value), "MMM yy", { locale: fr });
 }
 
 // Deux graphiques distincts (plutôt qu'un seul à double axe) car vues et
-// engagements n'ont pas la même échelle de grandeur.
+// interactions n'ont pas la même échelle de grandeur.
 function SingleMetricBarChart({
   data,
   dataKey,
   color,
 }: {
   data: EngagementPoint[];
-  dataKey: "impressions" | "engagements";
+  dataKey: "views" | "interactions";
   color: string;
 }) {
   return (
@@ -70,14 +70,12 @@ export function EngagementChart({ data }: { data: EngagementPoint[] }) {
   return (
     <div className="grid gap-6 md:grid-cols-2">
       <div>
-        <p className="mb-2 text-sm font-medium text-muted-foreground">
-          Impressions / Vues totales
-        </p>
-        <SingleMetricBarChart data={data} dataKey="impressions" color="var(--chart-1)" />
+        <p className="mb-2 text-sm font-medium text-muted-foreground">Vues</p>
+        <SingleMetricBarChart data={data} dataKey="views" color="var(--chart-1)" />
       </div>
       <div>
-        <p className="mb-2 text-sm font-medium text-muted-foreground">Engagements</p>
-        <SingleMetricBarChart data={data} dataKey="engagements" color="var(--chart-2)" />
+        <p className="mb-2 text-sm font-medium text-muted-foreground">Interactions</p>
+        <SingleMetricBarChart data={data} dataKey="interactions" color="var(--chart-2)" />
       </div>
     </div>
   );

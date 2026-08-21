@@ -13,8 +13,10 @@ datasource db {
 enum Platform {
   INSTAGRAM
   FACEBOOK
-  YOUTUBE
   TIKTOK
+  WHATSAPP
+  YOUTUBE
+  DAILYMOTION
 }
 
 enum PeriodType {
@@ -23,8 +25,8 @@ enum PeriodType {
 }
 
 // Une saisie de statistiques pour un réseau et une période donnés.
-// Les champs spécifiques à certains réseaux (ex: watchTime pour YouTube/TikTok)
-// sont nullable plutôt que d'avoir un modèle par réseau.
+// YouTube et Dailymotion n'ont que followers/views ; reach et interactions
+// sont nullable puisqu'ils ne s'appliquent qu'aux autres réseaux.
 model Entry {
   id         String     @id @default(cuid())
   platform   Platform
@@ -32,11 +34,10 @@ model Entry {
   periodDate DateTime
 
   followers      Int
-  impressions    Int
-  engagements    Int
+  views          Int
+  reach          Int?
+  interactions   Int?
   engagementRate Float?
-
-  watchTimeMinutes Int?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

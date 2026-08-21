@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { LayoutDashboard, PenLine } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { PLATFORM_LIST } from "@/lib/platforms";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 const primaryLinks = [
@@ -43,30 +42,6 @@ export function MainNav() {
               >
                 <Icon className="size-4" />
                 {link.label}
-              </Link>
-            );
-          })}
-
-          <span className="mx-2 h-4 w-px bg-border" />
-
-          {PLATFORM_LIST.map((config) => {
-            const href = `/${config.id.toLowerCase()}`;
-            const Icon = config.icon;
-            const isActive = pathname === href;
-            return (
-              <Link
-                key={config.id}
-                href={href}
-                title={config.label}
-                aria-label={config.label}
-                className={cn(
-                  "flex items-center justify-center rounded-md p-2 transition-colors",
-                  isActive
-                    ? "bg-muted text-foreground"
-                    : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
-                )}
-              >
-                <Icon className="size-4" style={{ color: config.color }} />
               </Link>
             );
           })}

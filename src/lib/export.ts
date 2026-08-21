@@ -9,10 +9,10 @@ function toRow(entry: Entry) {
     Période: PERIOD_TYPE_LABELS[entry.periodType],
     Date: entry.periodDate.toISOString().slice(0, 10),
     [config.followersLabel]: entry.followers,
-    [config.impressionsLabel]: entry.impressions,
-    [config.engagementsLabel]: entry.engagements,
+    [config.viewsLabel]: entry.views,
+    [config.reachLabel]: entry.reach ?? "",
+    [config.interactionsLabel]: entry.interactions ?? "",
     "Taux d'engagement (%)": entry.engagementRate?.toFixed(2) ?? "",
-    "Temps de visionnage (min)": entry.watchTimeMinutes ?? "",
   };
 }
 

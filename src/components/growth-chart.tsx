@@ -17,7 +17,7 @@ import { fr } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { PLATFORM_LIST } from "@/lib/platforms";
 import { formatCompactNumber } from "@/lib/metrics";
-import type { GrowthPoint } from "@/lib/queries";
+import type { GrowthPoint } from "@/lib/dashboard-metrics";
 import type { Platform } from "@/generated/prisma/enums";
 
 function formatMonth(value: string) {

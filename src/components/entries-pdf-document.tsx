@@ -21,8 +21,9 @@ export function EntriesPdfDocument({ entries }: { entries: Entry[] }) {
           <Text style={styles.cell}>Période</Text>
           <Text style={styles.cell}>Date</Text>
           <Text style={styles.cell}>Abonnés</Text>
-          <Text style={styles.cell}>Impressions/Vues</Text>
-          <Text style={styles.cell}>Engagements</Text>
+          <Text style={styles.cell}>Vues</Text>
+          <Text style={styles.cell}>Portée</Text>
+          <Text style={styles.cell}>Interactions</Text>
           <Text style={styles.cell}>Taux (%)</Text>
         </View>
 
@@ -34,8 +35,9 @@ export function EntriesPdfDocument({ entries }: { entries: Entry[] }) {
               <Text style={styles.cell}>{PERIOD_TYPE_LABELS[entry.periodType]}</Text>
               <Text style={styles.cell}>{entry.periodDate.toISOString().slice(0, 10)}</Text>
               <Text style={styles.cell}>{entry.followers}</Text>
-              <Text style={styles.cell}>{entry.impressions}</Text>
-              <Text style={styles.cell}>{entry.engagements}</Text>
+              <Text style={styles.cell}>{entry.views}</Text>
+              <Text style={styles.cell}>{entry.reach ?? "—"}</Text>
+              <Text style={styles.cell}>{entry.interactions ?? "—"}</Text>
               <Text style={styles.cell}>{entry.engagementRate?.toFixed(2) ?? "—"}</Text>
             </View>
           );
