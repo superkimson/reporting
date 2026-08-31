@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import {
   LineChart,
   Line,
@@ -17,6 +17,7 @@ import { fr } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { PLATFORM_LIST } from "@/lib/platforms";
 import { formatCompactNumber } from "@/lib/metrics";
+import { RANGE_OPTIONS, getRangeCutoff, type RangeKey } from "@/lib/date-range";
 import type { GrowthPoint } from "@/lib/dashboard-metrics";
 import type { Platform } from "@/generated/prisma/enums";
 
@@ -24,57 +25,18 @@ function formatMonth(value: string) {
   return format(parseISO(value), "MMM yy", { locale: fr });
 }
 
-type RangeKey = "3M" | "6M" | "YTD" | "1Y" | "MAX";
-
-const RANGE_OPTIONS: { key: RangeKey; label: string }[] = [
-  { key: "3M", label: "3M" },
-  { key: "6M", label: "6M" },
-  { key: "YTD", label: "YTD" },
-  { key: "1Y", label: "1 an" },
-  { key: "MAX", label: "Max" },
-];
-
-function pad(n: number) {
-  return String(n).padStart(2, "0");
-}
-
-// Comparaison en chaîne "YYYY-MM-01" plutôt qu'en objets Date : periodDate est
-// déjà normalisé sous cette forme, ça évite tout décalage de fuseau horaire
-// entre le calcul de la borne (locale) et le parsing des points (UTC).
-function getRangeCutoff(range: RangeKey): string | null {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth();
-
-  function monthsAgo(count: number) {
-    const d = new Date(year, month - count, 1);
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-01`;
-  }
-
-  switch (range) {
-    case "3M":
-      return monthsAgo(3);
-    case "6M":
-      return monthsAgo(6);
-    case "YTD":
-      return `${year}-01-01`;
-    case "1Y":
-      return monthsAgo(12);
-    case "MAX":
-      return null;
-  }
-}
-
 export function GrowthChart({
   data,
   platforms,
+  range,
+  onRangeChange,
 }: {
   data: GrowthPoint[];
   /** Restreint les lignes affichées (et masque la légende s'il n'y en a qu'une). */
   platforms?: Platform[];
+  range: RangeKey;
+  onRangeChange: (range: RangeKey) => void;
 }) {
-  const [range, setRange] = useState<RangeKey>("MAX");
-
   const seriesConfigs = platforms
     ? PLATFORM_LIST.filter((config) => platforms.includes(config.id))
     : PLATFORM_LIST;
@@ -93,7 +55,7 @@ export function GrowthChart({
             <button
               key={option.key}
               type="button"
-              onClick={() => setRange(option.key)}
+              onClick={() => onRangeChange(option.key)}
               aria-pressed={range === option.key}
               className={cn(
                 "rounded-md px-2.5 py-1 text-xs font-medium transition-colors",

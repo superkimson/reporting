@@ -1,6 +1,7 @@
 import Papa from "papaparse";
 import type { Entry } from "@/generated/prisma/client";
 import { PLATFORMS, PERIOD_TYPE_LABELS } from "@/lib/platforms";
+import type { PlatformExportStats } from "@/lib/dashboard-metrics";
 
 function toRow(entry: Entry) {
   const config = PLATFORMS[entry.platform];
@@ -37,5 +38,17 @@ export async function exportEntriesToPdf(entries: Entry[], filename = "statistiq
   const { pdf } = await import("@react-pdf/renderer");
   const { EntriesPdfDocument } = await import("@/components/entries-pdf-document");
   const blob = await pdf(EntriesPdfDocument({ entries })).toBlob();
+  downloadBlob(blob, filename);
+}
+
+export async function exportSummaryToPdf(
+  stats: PlatformExportStats[],
+  editionLabel: string,
+  rangeLabel: string,
+  filename = "recapitulatif.pdf"
+) {
+  const { pdf } = await import("@react-pdf/renderer");
+  const { SummaryPdfDocument } = await import("@/components/summary-pdf-document");
+  const blob = await pdf(SummaryPdfDocument({ stats, editionLabel, rangeLabel })).toBlob();
   downloadBlob(blob, filename);
 }

@@ -1,6 +1,7 @@
 import type { Entry } from "@/generated/prisma/client";
 import type { Platform } from "@/generated/prisma/enums";
 import { computeEvolution, computeEngagementRate, type Evolution } from "@/lib/metrics";
+import { getRangeCutoff, getPreviousRangeWindow, type RangeKey } from "@/lib/date-range";
 import type { PlatformConfig } from "@/lib/platforms";
 
 // Fonctions pures (pas de dépendance à Prisma) : elles opèrent sur des entrées déjà
@@ -20,7 +21,7 @@ export interface AggregatedPeriod {
 
 // Additionne les entrées d'un même réseau partageant la même periodDate (typiquement
 // une entrée MA + une entrée AG) pour obtenir la valeur combinée de cette période.
-function aggregateByPeriod(entries: Entry[]): AggregatedPeriod[] {
+export function aggregateByPeriod(entries: Entry[]): AggregatedPeriod[] {
   const byDate = new Map<string, AggregatedPeriod>();
 
   for (const entry of entries) {
@@ -175,4 +176,73 @@ export function computeEngagementSeries(entries: Entry[]): EngagementPoint[] {
   return Array.from(byDate.values()).sort((a, b) =>
     a.periodDate.localeCompare(b.periodDate)
   );
+}
+
+export interface PlatformExportStats {
+  config: PlatformConfig;
+  followers: { value: number | null; evolution: Evolution };
+  views: { value: number; evolution: Evolution };
+  interactions: { value: number | null; evolution: Evolution };
+}
+
+// Stats pour l'export visuel : abonnés = dernière valeur connue sur la période
+// (c'est un stock, pas un flux, ça ne s'additionne pas) ; vues/interactions =
+// somme sur la période, comparée à la somme de la période précédente de même durée.
+export function computeExportStats(
+  entries: Entry[],
+  platforms: PlatformConfig[],
+  range: RangeKey
+): PlatformExportStats[] {
+  const cutoff = getRangeCutoff(range);
+  const previousWindow = getPreviousRangeWindow(range);
+  const dateStr = (p: AggregatedPeriod) => p.periodDate.toISOString().slice(0, 10);
+
+  return platforms.map((config) => {
+    // aggregateByPeriod trie déjà du plus récent au plus ancien.
+    const periods = aggregateByPeriod(entries.filter((entry) => entry.platform === config.id));
+
+    const currentPeriods = cutoff ? periods.filter((p) => dateStr(p) >= cutoff) : periods;
+    const priorPeriods = previousWindow
+      ? periods.filter((p) => dateStr(p) >= previousWindow.start && dateStr(p) < previousWindow.end)
+      : [];
+
+    const latest = currentPeriods[0] ?? null;
+    const latestBeforeWindow = cutoff ? (periods.find((p) => dateStr(p) < cutoff) ?? null) : null;
+
+    const followersEvolution =
+      latest != null
+        ? computeEvolution(latest.followers, latestBeforeWindow?.followers)
+        : { value: null, direction: "flat" as const };
+
+    const viewsValue = currentPeriods.reduce((sum, p) => sum + p.views, 0);
+    const priorViews = priorPeriods.reduce((sum, p) => sum + p.views, 0);
+    const viewsEvolution = previousWindow
+      ? computeEvolution(viewsValue, priorPeriods.length ? priorViews : undefined)
+      : { value: null, direction: "flat" as const };
+
+    const interactionsPeriods = currentPeriods.filter((p) => p.interactions != null);
+    const interactionsValue =
+      config.hasFullMetrics && interactionsPeriods.length
+        ? interactionsPeriods.reduce((sum, p) => sum + (p.interactions ?? 0), 0)
+        : null;
+    const priorInteractionsPeriods = priorPeriods.filter((p) => p.interactions != null);
+    const priorInteractions = priorInteractionsPeriods.reduce(
+      (sum, p) => sum + (p.interactions ?? 0),
+      0
+    );
+    const interactionsEvolution =
+      previousWindow && interactionsValue != null
+        ? computeEvolution(
+            interactionsValue,
+            priorInteractionsPeriods.length ? priorInteractions : undefined
+          )
+        : { value: null, direction: "flat" as const };
+
+    return {
+      config,
+      followers: { value: latest?.followers ?? null, evolution: followersEvolution },
+      views: { value: viewsValue, evolution: viewsEvolution },
+      interactions: { value: interactionsValue, evolution: interactionsEvolution },
+    };
+  });
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, ImageDown } from "lucide-react";
 
 import { KpiCard } from "@/components/kpi-card";
 import { GrowthChart } from "@/components/growth-chart";
@@ -9,16 +9,20 @@ import { EngagementChart } from "@/components/engagement-chart";
 import { PlatformSummaryCard } from "@/components/platform-summary-card";
 import { EntriesTable } from "@/components/entries-table";
 import { FilterChipGroup, type ChipSelection } from "@/components/filter-chip-group";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { PLATFORM_LIST } from "@/lib/platforms";
-import { EDITION_LIST } from "@/lib/editions";
+import { EDITIONS, EDITION_LIST } from "@/lib/editions";
 import { formatCompactNumber } from "@/lib/metrics";
+import { exportSummaryToPdf } from "@/lib/export";
 import {
   computeDashboardSummary,
   computeGrowthSeries,
   computeEngagementSeries,
+  computeExportStats,
 } from "@/lib/dashboard-metrics";
+import { RANGE_DESCRIPTIONS, type RangeKey } from "@/lib/date-range";
 import type { Entry } from "@/generated/prisma/client";
 import type { Platform, Edition } from "@/generated/prisma/enums";
 
@@ -32,6 +36,7 @@ export function DashboardView({
   const [platformSelection, setPlatformSelection] = useState<ChipSelection<Platform>>("ALL");
   const [editionSelection, setEditionSelection] = useState<ChipSelection<Edition>>("ALL");
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [range, setRange] = useState<RangeKey>("MAX");
 
   const selectedPlatforms = useMemo(
     () =>
@@ -60,6 +65,13 @@ export function DashboardView({
     () => computeEngagementSeries(filteredEntries),
     [filteredEntries]
   );
+  const exportStats = useMemo(
+    () => computeExportStats(filteredEntries, selectedPlatforms, range),
+    [filteredEntries, selectedPlatforms, range]
+  );
+  const editionLabel =
+    editionSelection === "ALL" ? "Toutes éditions" : EDITIONS[editionSelection[0]].label;
+  const rangeLabel = RANGE_DESCRIPTIONS[range];
 
   return (
     <div className="space-y-8">
@@ -97,6 +109,18 @@ export function DashboardView({
             selection={platformSelection}
             onChange={setPlatformSelection}
           />
+
+          <Button
+            variant="outline"
+            size="sm"
+            className="ml-auto gap-1.5"
+            onClick={() =>
+              exportSummaryToPdf(exportStats, editionLabel, rangeLabel, "recapitulatif.pdf")
+            }
+          >
+            <ImageDown className="size-3.5" />
+            Export visuel
+          </Button>
         </div>
       </div>
 
@@ -126,6 +150,8 @@ export function DashboardView({
           <GrowthChart
             data={growthSeries}
             platforms={selectedPlatforms.map((config) => config.id)}
+            range={range}
+            onRangeChange={setRange}
           />
         </CardContent>
       </Card>

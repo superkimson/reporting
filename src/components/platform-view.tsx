@@ -11,6 +11,7 @@ import { EDITION_LIST } from "@/lib/editions";
 import { PLATFORMS } from "@/lib/platforms";
 import { formatCompactNumber } from "@/lib/metrics";
 import { computeDashboardSummary, computeGrowthSeries } from "@/lib/dashboard-metrics";
+import type { RangeKey } from "@/lib/date-range";
 import type { Entry } from "@/generated/prisma/client";
 import type { Edition, Platform } from "@/generated/prisma/enums";
 
@@ -25,6 +26,7 @@ export function PlatformView({
 }) {
   const config = PLATFORMS[platform];
   const [editionSelection, setEditionSelection] = useState<ChipSelection<Edition>>("ALL");
+  const [range, setRange] = useState<RangeKey>("MAX");
   const Icon = config.icon;
 
   const filteredEntries = useMemo(() => {
@@ -112,7 +114,12 @@ export function PlatformView({
           <CardTitle>Évolution des abonnés</CardTitle>
         </CardHeader>
         <CardContent>
-          <GrowthChart data={growthSeries} platforms={[config.id]} />
+          <GrowthChart
+            data={growthSeries}
+            platforms={[config.id]}
+            range={range}
+            onRangeChange={setRange}
+          />
         </CardContent>
       </Card>
 
