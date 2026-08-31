@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { ChevronDown } from "lucide-react";
 
 import { KpiCard } from "@/components/kpi-card";
 import { GrowthChart } from "@/components/growth-chart";
@@ -9,6 +10,7 @@ import { PlatformSummaryCard } from "@/components/platform-summary-card";
 import { EntriesTable } from "@/components/entries-table";
 import { FilterChipGroup, type ChipSelection } from "@/components/filter-chip-group";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import { PLATFORM_LIST } from "@/lib/platforms";
 import { EDITION_LIST } from "@/lib/editions";
 import { formatCompactNumber } from "@/lib/metrics";
@@ -29,6 +31,7 @@ export function DashboardView({
 }) {
   const [platformSelection, setPlatformSelection] = useState<ChipSelection<Platform>>("ALL");
   const [editionSelection, setEditionSelection] = useState<ChipSelection<Edition>>("ALL");
+  const [historyOpen, setHistoryOpen] = useState(false);
 
   const selectedPlatforms = useMemo(
     () =>
@@ -146,15 +149,30 @@ export function DashboardView({
       </div>
 
       <div>
-        <h2 className="mb-4 text-lg font-semibold tracking-tight">
-          Historique complet des saisies
-        </h2>
-        <EntriesTable
-          entries={filteredEntries}
-          showPlatformFilter
-          exportFileName="statistiques"
-          isEditor={isEditor}
-        />
+        <button
+          type="button"
+          onClick={() => setHistoryOpen((open) => !open)}
+          aria-expanded={historyOpen}
+          className="mb-4 flex w-full items-center justify-between gap-2 text-left"
+        >
+          <h2 className="text-lg font-semibold tracking-tight">
+            Historique complet des saisies
+          </h2>
+          <ChevronDown
+            className={cn(
+              "size-5 shrink-0 text-muted-foreground transition-transform",
+              historyOpen && "rotate-180"
+            )}
+          />
+        </button>
+        {historyOpen && (
+          <EntriesTable
+            entries={filteredEntries}
+            showPlatformFilter
+            exportFileName="statistiques"
+            isEditor={isEditor}
+          />
+        )}
       </div>
     </div>
   );
