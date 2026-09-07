@@ -8,6 +8,7 @@ import { GrowthChart } from "@/components/growth-chart";
 import { EngagementChart } from "@/components/engagement-chart";
 import { PlatformSummaryCard } from "@/components/platform-summary-card";
 import { EntriesTable } from "@/components/entries-table";
+import { TopFiveDisplay } from "@/components/top-five-display";
 import { FilterChipGroup, type ChipSelection } from "@/components/filter-chip-group";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,15 +24,21 @@ import {
   computeExportStats,
 } from "@/lib/dashboard-metrics";
 import { RANGE_DESCRIPTIONS, type RangeKey } from "@/lib/date-range";
-import type { Entry } from "@/generated/prisma/client";
+import type { Entry, TopFiveEntry } from "@/generated/prisma/client";
 import type { Platform, Edition } from "@/generated/prisma/enums";
 
 export function DashboardView({
   entries,
   isEditor,
+  topFiveMonth,
+  topFiveEntries,
+  topFiveMonths,
 }: {
   entries: Entry[];
   isEditor: boolean;
+  topFiveMonth: Date;
+  topFiveEntries: TopFiveEntry[];
+  topFiveMonths: Date[];
 }) {
   const [platformSelection, setPlatformSelection] = useState<ChipSelection<Platform>>("ALL");
   const [editionSelection, setEditionSelection] = useState<ChipSelection<Edition>>("ALL");
@@ -78,9 +85,7 @@ export function DashboardView({
       <div className="space-y-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Vue d&apos;ensemble</h1>
-          <p className="text-muted-foreground">
-            Suivi consolidé de tous vos réseaux sociaux.
-          </p>
+          <p className="text-muted-foreground">Sélectionnez les filtres souhaités.</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
@@ -131,7 +136,7 @@ export function DashboardView({
           evolution={kpis.totalFollowersEvolution}
         />
         <KpiCard
-          title="Vues globales"
+          title="Vues globales du dernier mois"
           value={formatCompactNumber(kpis.totalViews)}
           evolution={kpis.totalViewsEvolution}
         />
@@ -168,6 +173,12 @@ export function DashboardView({
           ))}
         </div>
       </div>
+
+      <TopFiveDisplay
+        initialMonth={topFiveMonth}
+        initialEntries={topFiveEntries}
+        availableMonths={topFiveMonths}
+      />
 
       <div>
         <button

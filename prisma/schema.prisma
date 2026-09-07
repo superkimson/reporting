@@ -52,3 +52,22 @@ model Entry {
   @@index([edition])
   @@index([periodDate])
 }
+
+// Les 5 vidéos les plus vues du mois (tous réseaux confondus), avec leur
+// miniature. Pas de notion d'édition MA/AG ici — un seul Top 5 par mois.
+model TopFiveEntry {
+  id         String   @id @default(cuid())
+  periodDate DateTime // toujours ramené au 1er du mois
+  position   Int // 1 à 5, un emplacement par colonne dans l'UI
+  name       String
+  views      Int
+  // Image encodée en data URL ("data:image/jpeg;base64,...") — stockée
+  // directement en base, pas de service de fichiers dédié.
+  imageData  String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([periodDate, position])
+  @@index([periodDate])
+}

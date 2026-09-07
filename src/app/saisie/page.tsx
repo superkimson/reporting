@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { QuickEntryForm } from "@/components/quick-entry-form";
+import { TopFiveForm } from "@/components/top-five-form";
 import { buttonVariants } from "@/components/ui/button";
 import { isEditor } from "@/lib/auth";
 
@@ -32,6 +33,8 @@ export default async function SaisiePage() {
       </div>
 
       <QuickEntryForm />
+
+      <TopFiveForm />
     </div>
   );
 }
