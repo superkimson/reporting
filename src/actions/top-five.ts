@@ -14,6 +14,7 @@ export async function saveTopFiveEntry(values: {
   position: number;
   name: string;
   views: number;
+  url: string;
   imageData: string;
 }): Promise<ActionResult> {
   if (!(await isEditor())) {
@@ -38,11 +39,13 @@ export async function saveTopFiveEntry(values: {
         position: data.position,
         name: data.name,
         views: data.views,
+        url: data.url,
         imageData: data.imageData,
       },
       update: {
         name: data.name,
         views: data.views,
+        url: data.url,
         imageData: data.imageData,
       },
     });

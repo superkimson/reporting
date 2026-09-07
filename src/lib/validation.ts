@@ -21,6 +21,7 @@ export const topFiveEntrySchema = z.object({
   position: z.coerce.number().int().min(1).max(5),
   name: z.string().trim().min(1, "Le nom est requis").max(200),
   views: z.coerce.number().int().min(0, "Doit être positif"),
+  url: z.string().trim().min(1, "L'URL est requise").url("URL invalide"),
   imageData: z
     .string()
     .min(1, "Une image est requise")

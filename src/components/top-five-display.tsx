@@ -75,9 +75,13 @@ export function TopFiveDisplay({
       <div
         className={`grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5 ${isPending ? "opacity-50" : ""}`}
       >
-        {slots.map((entry, index) => (
-          <div key={index} className="space-y-2">
-            <div className="relative flex aspect-video items-center justify-center overflow-hidden rounded-lg border bg-muted">
+        {slots.map((entry, index) => {
+          const thumbnail = (
+            <div
+              className={`relative flex aspect-[9/16] items-center justify-center overflow-hidden rounded-lg border bg-muted ${
+                entry?.url ? "transition-opacity hover:opacity-90" : ""
+              }`}
+            >
               {entry ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -89,16 +93,28 @@ export function TopFiveDisplay({
                 <Play className="size-5 text-muted-foreground/40" />
               )}
             </div>
-            {entry && (
-              <div>
-                <p className="truncate text-xs font-medium">{entry.name}</p>
-                <p className="text-xs text-muted-foreground">
-                  {formatCompactNumber(entry.views)} vues
-                </p>
-              </div>
-            )}
-          </div>
-        ))}
+          );
+
+          return (
+            <div key={index} className="space-y-2">
+              {entry?.url ? (
+                <a href={entry.url} target="_blank" rel="noopener noreferrer">
+                  {thumbnail}
+                </a>
+              ) : (
+                thumbnail
+              )}
+              {entry && (
+                <div>
+                  <p className="truncate text-xs font-medium">{entry.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {formatCompactNumber(entry.views)} vues
+                  </p>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

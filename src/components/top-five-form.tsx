@@ -43,6 +43,7 @@ interface PendingUpload {
   imageData: string;
   name: string;
   views: string;
+  url: string;
 }
 
 export function TopFiveForm() {
@@ -85,6 +86,7 @@ export function TopFiveForm() {
       imageData,
       name: existing?.name ?? "",
       views: existing ? String(existing.views) : "",
+      url: existing?.url ?? "",
     });
   }
 
@@ -103,6 +105,17 @@ export function TopFiveForm() {
       toast.error("Nombre de vues invalide");
       return;
     }
+    const url = pending.url.trim();
+    if (!url) {
+      toast.error("L'URL est requise");
+      return;
+    }
+    try {
+      new URL(url);
+    } catch {
+      toast.error("URL invalide");
+      return;
+    }
 
     setIsSaving(true);
     const result = await saveTopFiveEntry({
@@ -110,6 +123,7 @@ export function TopFiveForm() {
       position: pending.position,
       name: pending.name.trim(),
       views,
+      url,
       imageData: pending.imageData,
     });
     setIsSaving(false);
@@ -171,7 +185,7 @@ export function TopFiveForm() {
                 }}
                 onClick={() => fileInputs.current[position]?.click()}
                 className={cn(
-                  "relative flex aspect-video cursor-pointer flex-col items-center justify-center gap-1.5 overflow-hidden rounded-lg border border-dashed text-center transition-colors",
+                  "relative flex aspect-[9/16] cursor-pointer flex-col items-center justify-center gap-1.5 overflow-hidden rounded-lg border border-dashed text-center transition-colors",
                   entry
                     ? "border-solid border-border"
                     : "border-muted-foreground/30 hover:border-muted-foreground/60 hover:bg-muted/40"
@@ -247,12 +261,14 @@ export function TopFiveForm() {
 
           {pending && (
             <div className="space-y-4">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={pending.imageData}
-                alt="Aperçu"
-                className="aspect-video w-full rounded-md object-cover"
-              />
+              <div className="flex justify-center">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={pending.imageData}
+                  alt="Aperçu"
+                  className="aspect-[9/16] w-32 rounded-md object-cover"
+                />
+              </div>
 
               <div className="space-y-2">
                 <Label htmlFor="top-five-name">Nom de la vidéo</Label>
@@ -275,6 +291,19 @@ export function TopFiveForm() {
                   value={pending.views}
                   onChange={(event) =>
                     setPending((prev) => (prev ? { ...prev, views: event.target.value } : prev))
+                  }
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="top-five-url">URL</Label>
+                <Input
+                  id="top-five-url"
+                  type="url"
+                  placeholder="https://..."
+                  value={pending.url}
+                  onChange={(event) =>
+                    setPending((prev) => (prev ? { ...prev, url: event.target.value } : prev))
                   }
                 />
               </div>
