@@ -8,7 +8,6 @@ export const entryFormSchema = z.object({
   followers: z.coerce.number().int().min(0, "Doit être positif"),
   views: z.coerce.number().int().min(0, "Doit être positif"),
   reach: z.coerce.number().int().min(0, "Doit être positif").optional(),
-  interactions: z.coerce.number().int().min(0, "Doit être positif").optional(),
 });
 
 export type EntryFormValues = z.infer<typeof entryFormSchema>;

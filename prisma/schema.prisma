@@ -31,8 +31,8 @@ enum PeriodType {
 }
 
 // Une saisie de statistiques pour un réseau, une édition et une période donnés.
-// YouTube et Dailymotion n'ont que followers/views ; reach et interactions
-// sont nullable puisqu'ils ne s'appliquent qu'aux autres réseaux.
+// Seuls Instagram, Facebook et TikTok suivent la portée ; elle est nullable
+// puisqu'elle ne s'applique pas aux autres réseaux (YouTube, Dailymotion, WhatsApp).
 model Entry {
   id         String     @id @default(cuid())
   platform   Platform
@@ -40,11 +40,9 @@ model Entry {
   periodType PeriodType
   periodDate DateTime
 
-  followers      Int
-  views          Int
-  reach          Int?
-  interactions   Int?
-  engagementRate Float?
+  followers Int
+  views     Int
+  reach     Int?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -24,8 +24,6 @@ export function EntriesPdfDocument({ entries }: { entries: Entry[] }) {
           <Text style={styles.cell}>Abonnés</Text>
           <Text style={styles.cell}>Vues</Text>
           <Text style={styles.cell}>Portée</Text>
-          <Text style={styles.cell}>Interactions</Text>
-          <Text style={styles.cell}>Taux (%)</Text>
         </View>
 
         {entries.map((entry) => {
@@ -39,8 +37,6 @@ export function EntriesPdfDocument({ entries }: { entries: Entry[] }) {
               <Text style={styles.cell}>{entry.followers}</Text>
               <Text style={styles.cell}>{entry.views}</Text>
               <Text style={styles.cell}>{entry.reach ?? "—"}</Text>
-              <Text style={styles.cell}>{entry.interactions ?? "—"}</Text>
-              <Text style={styles.cell}>{entry.engagementRate?.toFixed(2) ?? "—"}</Text>
             </View>
           );
         })}

@@ -22,7 +22,7 @@ function todayIsoDate() {
 }
 
 function defaultValuesFor(platform: Platform, edition: Edition): EntryFormValues {
-  const hasFullMetrics = PLATFORM_LIST.find((p) => p.id === platform)!.hasFullMetrics;
+  const hasReach = PLATFORM_LIST.find((p) => p.id === platform)!.hasReach;
   return {
     platform,
     edition,
@@ -30,8 +30,7 @@ function defaultValuesFor(platform: Platform, edition: Edition): EntryFormValues
     periodDate: todayIsoDate(),
     followers: 0,
     views: 0,
-    reach: hasFullMetrics ? 0 : undefined,
-    interactions: hasFullMetrics ? 0 : undefined,
+    reach: hasReach ? 0 : undefined,
   };
 }
 
@@ -158,7 +157,7 @@ function PlatformForm({
         )}
       </div>
 
-      <div className={config.hasFullMetrics ? "flex flex-wrap gap-4" : "flex gap-4"}>
+      <div className="flex flex-wrap gap-4">
         <div className="min-w-32 flex-1 space-y-2">
           <Label htmlFor="followers">{config.followersLabel}</Label>
           <Input id="followers" type="number" min={0} {...register("followers")} />
@@ -173,24 +172,12 @@ function PlatformForm({
           {errors.views && <p className="text-xs text-destructive">{errors.views.message}</p>}
         </div>
 
-        {config.hasFullMetrics && (
-          <>
-            <div className="min-w-32 flex-1 space-y-2">
-              <Label htmlFor="reach">{config.reachLabel}</Label>
-              <Input id="reach" type="number" min={0} {...register("reach")} />
-              {errors.reach && (
-                <p className="text-xs text-destructive">{errors.reach.message}</p>
-              )}
-            </div>
-
-            <div className="min-w-32 flex-1 space-y-2">
-              <Label htmlFor="interactions">{config.interactionsLabel}</Label>
-              <Input id="interactions" type="number" min={0} {...register("interactions")} />
-              {errors.interactions && (
-                <p className="text-xs text-destructive">{errors.interactions.message}</p>
-              )}
-            </div>
-          </>
+        {config.hasReach && (
+          <div className="min-w-32 flex-1 space-y-2">
+            <Label htmlFor="reach">{config.reachLabel}</Label>
+            <Input id="reach" type="number" min={0} {...register("reach")} />
+            {errors.reach && <p className="text-xs text-destructive">{errors.reach.message}</p>}
+          </div>
         )}
       </div>
 

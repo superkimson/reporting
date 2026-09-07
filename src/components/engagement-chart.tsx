@@ -19,17 +19,7 @@ function formatMonth(value: string) {
   return format(parseISO(value), "MMM yy", { locale: fr });
 }
 
-// Deux graphiques distincts (plutôt qu'un seul à double axe) car vues et
-// interactions n'ont pas la même échelle de grandeur.
-function SingleMetricBarChart({
-  data,
-  dataKey,
-  color,
-}: {
-  data: EngagementPoint[];
-  dataKey: "views" | "interactions";
-  color: string;
-}) {
+export function EngagementChart({ data }: { data: EngagementPoint[] }) {
   return (
     <ResponsiveContainer width="100%" height={240}>
       <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
@@ -60,23 +50,8 @@ function SingleMetricBarChart({
             fontSize: 12,
           }}
         />
-        <Bar dataKey={dataKey} fill={color} radius={[4, 4, 0, 0]} maxBarSize={32} />
+        <Bar dataKey="views" fill="var(--chart-1)" radius={[4, 4, 0, 0]} maxBarSize={32} />
       </BarChart>
     </ResponsiveContainer>
-  );
-}
-
-export function EngagementChart({ data }: { data: EngagementPoint[] }) {
-  return (
-    <div className="grid gap-6 md:grid-cols-2">
-      <div>
-        <p className="mb-2 text-sm font-medium text-muted-foreground">Vues</p>
-        <SingleMetricBarChart data={data} dataKey="views" color="var(--chart-1)" />
-      </div>
-      <div>
-        <p className="mb-2 text-sm font-medium text-muted-foreground">Interactions</p>
-        <SingleMetricBarChart data={data} dataKey="interactions" color="var(--chart-2)" />
-      </div>
-    </div>
   );
 }

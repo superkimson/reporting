@@ -1,6 +1,6 @@
 import type { Entry } from "@/generated/prisma/client";
 import type { Platform } from "@/generated/prisma/enums";
-import { computeEvolution, computeEngagementRate, type Evolution } from "@/lib/metrics";
+import { computeEvolution, type Evolution } from "@/lib/metrics";
 import { getRangeCutoff, getPreviousRangeWindow, type RangeKey } from "@/lib/date-range";
 import type { PlatformConfig } from "@/lib/platforms";
 
@@ -15,8 +15,6 @@ export interface AggregatedPeriod {
   followers: number;
   views: number;
   reach: number | null;
-  interactions: number | null;
-  engagementRate: number | null;
 }
 
 // Additionne les entrées d'un même réseau partageant la même periodDate (typiquement
@@ -34,28 +32,17 @@ export function aggregateByPeriod(entries: Entry[]): AggregatedPeriod[] {
         existing.reach != null || entry.reach != null
           ? (existing.reach ?? 0) + (entry.reach ?? 0)
           : null;
-      existing.interactions =
-        existing.interactions != null || entry.interactions != null
-          ? (existing.interactions ?? 0) + (entry.interactions ?? 0)
-          : null;
     } else {
       byDate.set(key, {
         periodDate: entry.periodDate,
         followers: entry.followers,
         views: entry.views,
         reach: entry.reach,
-        interactions: entry.interactions,
-        engagementRate: null,
       });
     }
   }
 
-  const periods = Array.from(byDate.values());
-  for (const period of periods) {
-    period.engagementRate = computeEngagementRate(period.interactions, period.views);
-  }
-
-  return periods.sort((a, b) => b.periodDate.getTime() - a.periodDate.getTime());
+  return Array.from(byDate.values()).sort((a, b) => b.periodDate.getTime() - a.periodDate.getTime());
 }
 
 export interface PlatformSummary {
@@ -64,7 +51,6 @@ export interface PlatformSummary {
   previous: AggregatedPeriod | null;
   followersEvolution: Evolution;
   viewsEvolution: Evolution;
-  interactionsEvolution: Evolution;
 }
 
 export interface DashboardData {
@@ -74,8 +60,6 @@ export interface DashboardData {
     totalFollowersEvolution: Evolution;
     totalViews: number;
     totalViewsEvolution: Evolution;
-    avgEngagementRate: number;
-    avgEngagementRateEvolution: Evolution;
   };
 }
 
@@ -94,10 +78,6 @@ export function computeDashboardSummary(
       previous,
       followersEvolution: computeEvolution(current?.followers ?? 0, previous?.followers),
       viewsEvolution: computeEvolution(current?.views ?? 0, previous?.views),
-      interactionsEvolution: computeEvolution(
-        current?.interactions ?? 0,
-        previous?.interactions ?? undefined
-      ),
     };
   });
 
@@ -108,12 +88,6 @@ export function computeDashboardSummary(
   const totalFollowersPrev = sum((s) => s.previous?.followers);
   const totalViews = sum((s) => s.current?.views);
   const totalViewsPrev = sum((s) => s.previous?.views);
-  const totalInteractions = sum((s) => s.current?.interactions);
-  const totalInteractionsPrev = sum((s) => s.previous?.interactions);
-
-  const avgEngagementRate = totalViews > 0 ? (totalInteractions / totalViews) * 100 : 0;
-  const avgEngagementRatePrev =
-    totalViewsPrev > 0 ? (totalInteractionsPrev / totalViewsPrev) * 100 : 0;
 
   return {
     summaries,
@@ -122,11 +96,6 @@ export function computeDashboardSummary(
       totalFollowersEvolution: computeEvolution(totalFollowers, totalFollowersPrev),
       totalViews,
       totalViewsEvolution: computeEvolution(totalViews, totalViewsPrev),
-      avgEngagementRate,
-      avgEngagementRateEvolution: computeEvolution(
-        avgEngagementRate,
-        totalViewsPrev > 0 ? avgEngagementRatePrev : undefined
-      ),
     },
   };
 }
@@ -158,18 +127,16 @@ export function computeGrowthSeries(entries: Entry[]): GrowthPoint[] {
 export interface EngagementPoint {
   periodDate: string;
   views: number;
-  interactions: number;
 }
 
-// Agrège vues et interactions tous réseaux confondus, par mois, pour l'histogramme comparatif.
+// Agrège les vues tous réseaux confondus, par mois, pour l'histogramme comparatif.
 export function computeEngagementSeries(entries: Entry[]): EngagementPoint[] {
   const byDate = new Map<string, EngagementPoint>();
 
   for (const entry of entries) {
     const key = entry.periodDate.toISOString().slice(0, 10);
-    const existing = byDate.get(key) ?? { periodDate: key, views: 0, interactions: 0 };
+    const existing = byDate.get(key) ?? { periodDate: key, views: 0 };
     existing.views += entry.views;
-    existing.interactions += entry.interactions ?? 0;
     byDate.set(key, existing);
   }
 
@@ -182,12 +149,11 @@ export interface PlatformExportStats {
   config: PlatformConfig;
   followers: { value: number | null; evolution: Evolution };
   views: { value: number; evolution: Evolution };
-  interactions: { value: number | null; evolution: Evolution };
 }
 
 // Stats pour l'export visuel : abonnés = dernière valeur connue sur la période
-// (c'est un stock, pas un flux, ça ne s'additionne pas) ; vues/interactions =
-// somme sur la période, comparée à la somme de la période précédente de même durée.
+// (c'est un stock, pas un flux, ça ne s'additionne pas) ; vues = somme sur la
+// période, comparée à la somme de la période précédente de même durée.
 export function computeExportStats(
   entries: Entry[],
   platforms: PlatformConfig[],
@@ -220,29 +186,10 @@ export function computeExportStats(
       ? computeEvolution(viewsValue, priorPeriods.length ? priorViews : undefined)
       : { value: null, direction: "flat" as const };
 
-    const interactionsPeriods = currentPeriods.filter((p) => p.interactions != null);
-    const interactionsValue =
-      config.hasFullMetrics && interactionsPeriods.length
-        ? interactionsPeriods.reduce((sum, p) => sum + (p.interactions ?? 0), 0)
-        : null;
-    const priorInteractionsPeriods = priorPeriods.filter((p) => p.interactions != null);
-    const priorInteractions = priorInteractionsPeriods.reduce(
-      (sum, p) => sum + (p.interactions ?? 0),
-      0
-    );
-    const interactionsEvolution =
-      previousWindow && interactionsValue != null
-        ? computeEvolution(
-            interactionsValue,
-            priorInteractionsPeriods.length ? priorInteractions : undefined
-          )
-        : { value: null, direction: "flat" as const };
-
     return {
       config,
       followers: { value: latest?.followers ?? null, evolution: followersEvolution },
       views: { value: viewsValue, evolution: viewsEvolution },
-      interactions: { value: interactionsValue, evolution: interactionsEvolution },
     };
   });
 }

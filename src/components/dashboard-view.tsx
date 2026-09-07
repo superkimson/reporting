@@ -124,21 +124,16 @@ export function DashboardView({
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2">
         <KpiCard
           title="Abonnés totaux"
           value={formatCompactNumber(kpis.totalFollowers)}
           evolution={kpis.totalFollowersEvolution}
         />
         <KpiCard
-          title="Portée globale"
+          title="Vues globales"
           value={formatCompactNumber(kpis.totalViews)}
           evolution={kpis.totalViewsEvolution}
-        />
-        <KpiCard
-          title="Engagement moyen"
-          value={`${kpis.avgEngagementRate.toFixed(1)}%`}
-          evolution={kpis.avgEngagementRateEvolution}
         />
       </div>
 
@@ -158,7 +153,7 @@ export function DashboardView({
 
       <Card>
         <CardHeader>
-          <CardTitle>Vues et interactions, réseaux sélectionnés</CardTitle>
+          <CardTitle>Vues, réseaux sélectionnés</CardTitle>
         </CardHeader>
         <CardContent>
           <EngagementChart data={engagementSeries} />

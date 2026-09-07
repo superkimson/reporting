@@ -14,7 +14,6 @@ interface MonthEntry {
   followers: number;
   views: number;
   reach?: number;
-  interactions?: number;
 }
 
 // Historique réel (nov. 2025 → juil. 2026). Les mois sans donnée (ex: mai 2026,
@@ -23,21 +22,21 @@ interface MonthEntry {
 const REAL_DATA: Partial<Record<Platform, Record<Edition, MonthEntry[]>>> = {
   INSTAGRAM: {
     MA: [
-      { month: "2025-11", followers: 11900, views: 275300, reach: 166000, interactions: 9200 },
-      { month: "2025-12", followers: 12900, views: 307500, reach: 168000, interactions: 8400 },
-      { month: "2026-01", followers: 13400, views: 266000, reach: 96600, interactions: 5600 },
-      { month: "2026-02", followers: 13700, views: 142000, reach: 64500, interactions: 3700 },
-      { month: "2026-03", followers: 14000, views: 197000, reach: 62500, interactions: 5100 },
+      { month: "2025-11", followers: 11900, views: 275300, reach: 166000 },
+      { month: "2025-12", followers: 12900, views: 307500, reach: 168000 },
+      { month: "2026-01", followers: 13400, views: 266000, reach: 96600 },
+      { month: "2026-02", followers: 13700, views: 142000, reach: 64500 },
+      { month: "2026-03", followers: 14000, views: 197000, reach: 62500 },
       { month: "2026-04", followers: 14300, views: 316100 },
       { month: "2026-06", followers: 14700, views: 690000 },
       { month: "2026-07", followers: 15900, views: 1200000 },
     ],
     AG: [
-      { month: "2025-11", followers: 4865, views: 92800, reach: 37800, interactions: 916 },
-      { month: "2025-12", followers: 4947, views: 100000, reach: 43500, interactions: 1100 },
-      { month: "2026-01", followers: 5500, views: 272000, reach: 183000, interactions: 2800 },
-      { month: "2026-02", followers: 5800, views: 192000, reach: 91000, interactions: 2900 },
-      { month: "2026-03", followers: 6000, views: 192000, reach: 65700, interactions: 2200 },
+      { month: "2025-11", followers: 4865, views: 92800, reach: 37800 },
+      { month: "2025-12", followers: 4947, views: 100000, reach: 43500 },
+      { month: "2026-01", followers: 5500, views: 272000, reach: 183000 },
+      { month: "2026-02", followers: 5800, views: 192000, reach: 91000 },
+      { month: "2026-03", followers: 6000, views: 192000, reach: 65700 },
       { month: "2026-04", followers: 6300, views: 209100 },
       { month: "2026-06", followers: 6900, views: 355000 },
       { month: "2026-07", followers: 7000, views: 305000 },
@@ -45,21 +44,21 @@ const REAL_DATA: Partial<Record<Platform, Record<Edition, MonthEntry[]>>> = {
   },
   FACEBOOK: {
     MA: [
-      { month: "2025-11", followers: 94600, views: 2000000, reach: 663000, interactions: 10300 },
-      { month: "2025-12", followers: 100000, views: 2500000, reach: 810000, interactions: 14700 },
-      { month: "2026-01", followers: 100200, views: 2400000, reach: 855000, interactions: 14500 },
-      { month: "2026-02", followers: 104200, views: 1400000, reach: 556000, interactions: 11700 },
-      { month: "2026-03", followers: 108000, views: 2600000, reach: 1500000, interactions: 23000 },
+      { month: "2025-11", followers: 94600, views: 2000000, reach: 663000 },
+      { month: "2025-12", followers: 100000, views: 2500000, reach: 810000 },
+      { month: "2026-01", followers: 100200, views: 2400000, reach: 855000 },
+      { month: "2026-02", followers: 104200, views: 1400000, reach: 556000 },
+      { month: "2026-03", followers: 108000, views: 2600000, reach: 1500000 },
       { month: "2026-04", followers: 109400, views: 2000000 },
       { month: "2026-06", followers: 109800, views: 3500000 },
       { month: "2026-07", followers: 110000, views: 2000000 },
     ],
     AG: [
-      { month: "2025-11", followers: 29000, views: 968300, reach: 241200, interactions: 1200 },
-      { month: "2025-12", followers: 29000, views: 938700, reach: 200000, interactions: 996 },
-      { month: "2026-01", followers: 29100, views: 1800000, reach: 596000, interactions: 3300 },
-      { month: "2026-02", followers: 29000, views: 543000, reach: 226000, interactions: 1900 },
-      { month: "2026-03", followers: 29000, views: 320000, reach: 113000, interactions: 1200 },
+      { month: "2025-11", followers: 29000, views: 968300, reach: 241200 },
+      { month: "2025-12", followers: 29000, views: 938700, reach: 200000 },
+      { month: "2026-01", followers: 29100, views: 1800000, reach: 596000 },
+      { month: "2026-02", followers: 29000, views: 543000, reach: 226000 },
+      { month: "2026-03", followers: 29000, views: 320000, reach: 113000 },
       { month: "2026-04", followers: 29600, views: 783200 },
       { month: "2026-06", followers: 29800, views: 2200000 },
       { month: "2026-07", followers: 30000, views: 2100000 },
@@ -124,9 +123,6 @@ async function main() {
 
     for (const edition of Object.values(Edition)) {
       for (const row of platformData[edition]) {
-        const engagementRate =
-          row.interactions !== undefined ? (row.interactions / row.views) * 100 : null;
-
         await prisma.entry.create({
           data: {
             platform,
@@ -136,8 +132,6 @@ async function main() {
             followers: row.followers,
             views: row.views,
             reach: row.reach ?? null,
-            interactions: row.interactions ?? null,
-            engagementRate,
           },
         });
       }

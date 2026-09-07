@@ -15,7 +15,7 @@ export function KpiCard({
   title,
   value,
   evolution,
-  comparisonLabel = "vs période précédente",
+  comparisonLabel = "vs dernière entrée",
 }: KpiCardProps) {
   const isUp = evolution.direction === "up";
   const isDown = evolution.direction === "down";

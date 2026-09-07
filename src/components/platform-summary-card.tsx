@@ -59,19 +59,6 @@ export function PlatformSummaryCard({ summary }: { summary: PlatformSummary }) {
               <EvolutionBadge evolution={summary.viewsEvolution} />
             </div>
           </div>
-          {config.hasFullMetrics && (
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">{config.interactionsLabel}</span>
-              <div className="flex items-center gap-2">
-                <span className="font-display text-sm font-bold tabular-nums">
-                  {summary.current?.interactions != null
-                    ? formatCompactNumber(summary.current.interactions)
-                    : "—"}
-                </span>
-                <EvolutionBadge evolution={summary.interactionsEvolution} />
-              </div>
-            </div>
-          )}
         </CardContent>
       </Card>
     </Link>

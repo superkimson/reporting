@@ -13,8 +13,6 @@ function toRow(entry: Entry) {
     [config.followersLabel]: entry.followers,
     [config.viewsLabel]: entry.views,
     [config.reachLabel]: entry.reach ?? "",
-    [config.interactionsLabel]: entry.interactions ?? "",
-    "Taux d'engagement (%)": entry.engagementRate?.toFixed(2) ?? "",
   };
 }
 

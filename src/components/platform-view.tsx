@@ -67,7 +67,7 @@ export function PlatformView({
       </div>
 
       {summary.current ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2">
           <KpiCard
             title={config.followersLabel}
             value={formatCompactNumber(summary.current.followers)}
@@ -78,29 +78,6 @@ export function PlatformView({
             value={formatCompactNumber(summary.current.views)}
             evolution={summary.viewsEvolution}
           />
-          {config.hasFullMetrics && (
-            <>
-              <KpiCard
-                title={config.interactionsLabel}
-                value={
-                  summary.current.interactions != null
-                    ? formatCompactNumber(summary.current.interactions)
-                    : "—"
-                }
-                evolution={summary.interactionsEvolution}
-              />
-              <KpiCard
-                title="Taux d'engagement"
-                value={
-                  summary.current.engagementRate
-                    ? `${summary.current.engagementRate.toFixed(1)}%`
-                    : "—"
-                }
-                evolution={{ value: null, direction: "flat" }}
-                comparisonLabel="sur la dernière période"
-              />
-            </>
-          )}
         </div>
       ) : (
         <p className="text-muted-foreground">

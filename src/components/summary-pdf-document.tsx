@@ -81,7 +81,7 @@ export function SummaryPdfDocument({
           {editionLabel} · {rangeLabel} · généré le {generatedAt}
         </Text>
 
-        {stats.map(({ config, followers, views, interactions }) => {
+        {stats.map(({ config, followers, views }) => {
           const icon = PLATFORM_ICON_PATHS[config.id];
           return (
             <View key={config.id} style={styles.block} wrap={false}>
@@ -101,13 +101,6 @@ export function SummaryPdfDocument({
                   evolution={followers.evolution}
                 />
                 <StatTile label={config.viewsLabel} value={views.value} evolution={views.evolution} />
-                {config.hasFullMetrics && (
-                  <StatTile
-                    label={config.interactionsLabel}
-                    value={interactions.value}
-                    evolution={interactions.evolution}
-                  />
-                )}
               </View>
             </View>
           );

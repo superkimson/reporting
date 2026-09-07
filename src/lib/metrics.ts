@@ -26,14 +26,6 @@ export function formatEvolution(evolution: Evolution): string {
   return `${sign}${evolution.value.toFixed(1)}%`;
 }
 
-export function computeEngagementRate(
-  interactions: number | undefined | null,
-  views: number
-): number | null {
-  if (!views || interactions === undefined || interactions === null) return null;
-  return (interactions / views) * 100;
-}
-
 export function formatCompactNumber(value: number): string {
   return new Intl.NumberFormat("fr-FR", { notation: "compact" }).format(value);
 }

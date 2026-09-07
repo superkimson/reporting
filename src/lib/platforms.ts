@@ -19,9 +19,8 @@ export interface PlatformConfig {
   followersLabel: string;
   viewsLabel: string;
   reachLabel: string;
-  interactionsLabel: string;
-  /** false pour YouTube et Dailymotion : uniquement Abonnés + Vues. */
-  hasFullMetrics: boolean;
+  /** false pour WhatsApp, YouTube et Dailymotion : uniquement Abonnés + Vues. */
+  hasReach: boolean;
 }
 
 export const PLATFORMS: Record<Platform, PlatformConfig> = {
@@ -33,8 +32,7 @@ export const PLATFORMS: Record<Platform, PlatformConfig> = {
     followersLabel: "Abonnés",
     viewsLabel: "Vues",
     reachLabel: "Portée",
-    interactionsLabel: "Interactions",
-    hasFullMetrics: true,
+    hasReach: true,
   },
   FACEBOOK: {
     id: "FACEBOOK",
@@ -44,8 +42,7 @@ export const PLATFORMS: Record<Platform, PlatformConfig> = {
     followersLabel: "Abonnés",
     viewsLabel: "Vues",
     reachLabel: "Portée",
-    interactionsLabel: "Interactions",
-    hasFullMetrics: true,
+    hasReach: true,
   },
   TIKTOK: {
     id: "TIKTOK",
@@ -55,8 +52,7 @@ export const PLATFORMS: Record<Platform, PlatformConfig> = {
     followersLabel: "Abonnés",
     viewsLabel: "Vues",
     reachLabel: "Portée",
-    interactionsLabel: "Interactions",
-    hasFullMetrics: true,
+    hasReach: true,
   },
   WHATSAPP: {
     id: "WHATSAPP",
@@ -66,8 +62,7 @@ export const PLATFORMS: Record<Platform, PlatformConfig> = {
     followersLabel: "Abonnés",
     viewsLabel: "Vues",
     reachLabel: "Portée",
-    interactionsLabel: "Interactions",
-    hasFullMetrics: true,
+    hasReach: false,
   },
   YOUTUBE: {
     id: "YOUTUBE",
@@ -77,8 +72,7 @@ export const PLATFORMS: Record<Platform, PlatformConfig> = {
     followersLabel: "Abonnés",
     viewsLabel: "Vues",
     reachLabel: "Portée",
-    interactionsLabel: "Interactions",
-    hasFullMetrics: false,
+    hasReach: false,
   },
   DAILYMOTION: {
     id: "DAILYMOTION",
@@ -88,8 +82,7 @@ export const PLATFORMS: Record<Platform, PlatformConfig> = {
     followersLabel: "Abonnés",
     viewsLabel: "Vues",
     reachLabel: "Portée",
-    interactionsLabel: "Interactions",
-    hasFullMetrics: false,
+    hasReach: false,
   },
 };
 

@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { isEditor } from "@/lib/auth";
-import { computeEngagementRate, normalizePeriodDate } from "@/lib/metrics";
+import { normalizePeriodDate } from "@/lib/metrics";
 import { entryFormSchema, type EntryFormValues } from "@/lib/validation";
 
 export interface ActionResult {
@@ -31,7 +31,6 @@ export async function createEntry(values: EntryFormValues): Promise<ActionResult
   }
 
   const data = parsed.data;
-  const engagementRate = computeEngagementRate(data.interactions, data.views);
   const periodDate = normalizePeriodDate(data.periodDate, data.periodType);
 
   try {
@@ -52,15 +51,11 @@ export async function createEntry(values: EntryFormValues): Promise<ActionResult
         followers: data.followers,
         views: data.views,
         reach: data.reach ?? null,
-        interactions: data.interactions ?? null,
-        engagementRate,
       },
       update: {
         followers: data.followers,
         views: data.views,
         reach: data.reach ?? null,
-        interactions: data.interactions ?? null,
-        engagementRate,
       },
     });
 
