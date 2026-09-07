@@ -1,6 +1,7 @@
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 import type { Entry } from "@/generated/prisma/client";
 import { PLATFORMS, PERIOD_TYPE_LABELS } from "@/lib/platforms";
+import { formatNumber } from "@/lib/metrics";
 
 const styles = StyleSheet.create({
   page: { padding: 24, fontSize: 9, fontFamily: "Helvetica" },
@@ -34,9 +35,9 @@ export function EntriesPdfDocument({ entries }: { entries: Entry[] }) {
               <Text style={styles.cell}>{entry.edition}</Text>
               <Text style={styles.cell}>{PERIOD_TYPE_LABELS[entry.periodType]}</Text>
               <Text style={styles.cell}>{entry.periodDate.toISOString().slice(0, 10)}</Text>
-              <Text style={styles.cell}>{entry.followers}</Text>
-              <Text style={styles.cell}>{entry.views}</Text>
-              <Text style={styles.cell}>{entry.reach ?? "—"}</Text>
+              <Text style={styles.cell}>{formatNumber(entry.followers)}</Text>
+              <Text style={styles.cell}>{formatNumber(entry.views)}</Text>
+              <Text style={styles.cell}>{entry.reach != null ? formatNumber(entry.reach) : "—"}</Text>
             </View>
           );
         })}

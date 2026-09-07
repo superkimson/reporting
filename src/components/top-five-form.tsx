@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { ImagePlus, Loader2, Trash2, Upload } from "lucide-react";
+import { ImagePlus, Loader2, Pencil, Trash2, Upload } from "lucide-react";
 
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { BlurredThumbnail } from "@/components/blurred-thumbnail";
+import { formatNumber, parseNumberInput } from "@/lib/metrics";
 import { MAX_TOP_FIVE_IMAGE_BYTES } from "@/lib/validation";
 import { saveTopFiveEntry, deleteTopFiveEntry, fetchTopFiveForMonth } from "@/actions/top-five";
 import type { TopFiveEntry } from "@/generated/prisma/client";
@@ -86,8 +87,20 @@ export function TopFiveForm() {
       position,
       imageData,
       name: existing?.name ?? "",
-      views: existing ? String(existing.views) : "",
+      views: existing ? formatNumber(existing.views) : "",
       url: existing?.url ?? "",
+    });
+  }
+
+  function handleEditMeta(position: number) {
+    const entry = slots[position];
+    if (!entry) return;
+    setPending({
+      position,
+      imageData: entry.imageData,
+      name: entry.name,
+      views: formatNumber(entry.views),
+      url: entry.url ?? "",
     });
   }
 
@@ -97,7 +110,7 @@ export function TopFiveForm() {
 
   async function handleConfirmPending() {
     if (!pending) return;
-    const views = Number(pending.views);
+    const views = parseNumberInput(pending.views);
     if (!pending.name.trim()) {
       toast.error("Le nom est requis");
       return;
@@ -228,18 +241,29 @@ export function TopFiveForm() {
                   <div className="min-w-0">
                     <p className="truncate text-xs font-medium">{entry.name}</p>
                     <p className="text-xs text-muted-foreground">
-                      {entry.views.toLocaleString("fr-FR")} vues
+                      {formatNumber(entry.views)} vues
                     </p>
                   </div>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon-xs"
-                    onClick={() => handleRemove(position)}
-                    aria-label="Retirer"
-                  >
-                    <Trash2 className="size-3" />
-                  </Button>
+                  <div className="flex shrink-0 items-center">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-xs"
+                      onClick={() => handleEditMeta(position)}
+                      aria-label="Modifier"
+                    >
+                      <Pencil className="size-3" />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-xs"
+                      onClick={() => handleRemove(position)}
+                      aria-label="Retirer"
+                    >
+                      <Trash2 className="size-3" />
+                    </Button>
+                  </div>
                 </div>
               )}
             </div>
@@ -285,12 +309,19 @@ export function TopFiveForm() {
                 <Label htmlFor="top-five-views">Nombre de vues</Label>
                 <Input
                   id="top-five-views"
-                  type="number"
-                  min={0}
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="off"
                   value={pending.views}
                   onChange={(event) =>
                     setPending((prev) => (prev ? { ...prev, views: event.target.value } : prev))
                   }
+                  onBlur={(event) => {
+                    const parsed = parseNumberInput(event.target.value);
+                    if (Number.isFinite(parsed)) {
+                      setPending((prev) => (prev ? { ...prev, views: formatNumber(parsed) } : prev));
+                    }
+                  }}
                 />
               </div>
 

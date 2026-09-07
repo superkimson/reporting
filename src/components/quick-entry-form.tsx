@@ -12,16 +12,24 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { createEntry } from "@/actions/entries";
-import { entryFormSchema, type EntryFormValues } from "@/lib/validation";
+import { entryFormSchema, type EntryFormInput, type EntryFormValues } from "@/lib/validation";
 import { PLATFORM_LIST } from "@/lib/platforms";
 import { EDITION_LIST } from "@/lib/editions";
+import { formatNumber, parseNumberInput } from "@/lib/metrics";
 import type { Platform, Edition } from "@/generated/prisma/enums";
+
+function reformatNumericInput(event: React.FocusEvent<HTMLInputElement>) {
+  const parsed = parseNumberInput(event.target.value);
+  if (Number.isFinite(parsed)) {
+    event.target.value = formatNumber(parsed);
+  }
+}
 
 function todayIsoDate() {
   return new Date().toISOString().slice(0, 10);
 }
 
-function defaultValuesFor(platform: Platform, edition: Edition): EntryFormValues {
+function defaultValuesFor(platform: Platform, edition: Edition): EntryFormInput {
   return {
     platform,
     edition,
@@ -128,7 +136,7 @@ function PlatformForm({
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
-  } = useForm<EntryFormValues>({
+  } = useForm<EntryFormInput, unknown, EntryFormValues>({
     resolver: zodResolver(entryFormSchema),
     defaultValues: defaultValuesFor(platform, edition),
     values: defaultValuesFor(platform, edition),
@@ -158,7 +166,13 @@ function PlatformForm({
       <div className="flex flex-wrap gap-4">
         <div className="min-w-32 flex-1 space-y-2">
           <Label htmlFor="followers">{config.followersLabel}</Label>
-          <Input id="followers" type="number" min={0} {...register("followers")} />
+          <Input
+            id="followers"
+            type="text"
+            inputMode="numeric"
+            autoComplete="off"
+            {...register("followers", { onBlur: reformatNumericInput })}
+          />
           {errors.followers && (
             <p className="text-xs text-destructive">{errors.followers.message}</p>
           )}
@@ -166,7 +180,13 @@ function PlatformForm({
 
         <div className="min-w-32 flex-1 space-y-2">
           <Label htmlFor="views">{config.viewsLabel}</Label>
-          <Input id="views" type="number" min={0} {...register("views")} />
+          <Input
+            id="views"
+            type="text"
+            inputMode="numeric"
+            autoComplete="off"
+            {...register("views", { onBlur: reformatNumericInput })}
+          />
           {errors.views && <p className="text-xs text-destructive">{errors.views.message}</p>}
         </div>
       </div>

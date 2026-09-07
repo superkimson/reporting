@@ -53,7 +53,11 @@ export function TopFiveDisplay({
     });
   }
 
-  const slots = [1, 2, 3, 4, 5].map((position) => entries.find((e) => e.position === position));
+  // L'ordre d'affichage suit le nombre de vues (décroissant), pas l'emplacement
+  // (position 1-5) choisi lors de la saisie.
+  const sorted = [...entries].sort((a, b) => b.views - a.views);
+  const slots: (TopFiveEntry | undefined)[] = [...sorted];
+  while (slots.length < 5) slots.push(undefined);
 
   return (
     <div className="space-y-4">
@@ -96,7 +100,7 @@ export function TopFiveDisplay({
           );
 
           return (
-            <div key={index} className="space-y-2">
+            <div key={entry?.id ?? `empty-${index}`} className="space-y-2">
               {entry?.url ? (
                 <a href={entry.url} target="_blank" rel="noopener noreferrer">
                   {thumbnail}

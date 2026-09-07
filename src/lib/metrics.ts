@@ -30,6 +30,20 @@ export function formatCompactNumber(value: number): string {
   return new Intl.NumberFormat("fr-FR", { notation: "compact" }).format(value);
 }
 
+// Affichage des nombres complets (tables, PDF, saisies) : "." comme séparateur
+// de milliers, ex. 12345 -> "12.345". Distinct de formatCompactNumber (12 k),
+// gardé pour les KPI/graphiques où l'espace est compté.
+export function formatNumber(value: number): string {
+  return Math.trunc(value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
+// Parse une saisie utilisateur en acceptant ou non le "." comme séparateur de
+// milliers (ex. "12.345" et "12345" donnent tous les deux 12345) plutôt que de
+// l'interpréter comme une décimale.
+export function parseNumberInput(value: string): number {
+  return Number(value.replace(/\./g, "").trim());
+}
+
 // Ramène la date saisie au repère canonique de sa période (1er du mois, ou lundi
 // de la semaine) pour qu'une saisie répétée le même mois/semaine mette à jour
 // l'entrée existante au lieu d'en créer une nouvelle par jour.
