@@ -22,7 +22,6 @@ function todayIsoDate() {
 }
 
 function defaultValuesFor(platform: Platform, edition: Edition): EntryFormValues {
-  const hasReach = PLATFORM_LIST.find((p) => p.id === platform)!.hasReach;
   return {
     platform,
     edition,
@@ -30,7 +29,6 @@ function defaultValuesFor(platform: Platform, edition: Edition): EntryFormValues
     periodDate: todayIsoDate(),
     followers: 0,
     views: 0,
-    reach: hasReach ? 0 : undefined,
   };
 }
 
@@ -171,17 +169,14 @@ function PlatformForm({
           <Input id="views" type="number" min={0} {...register("views")} />
           {errors.views && <p className="text-xs text-destructive">{errors.views.message}</p>}
         </div>
-
-        {config.hasReach && (
-          <div className="min-w-32 flex-1 space-y-2">
-            <Label htmlFor="reach">{config.reachLabel}</Label>
-            <Input id="reach" type="number" min={0} {...register("reach")} />
-            {errors.reach && <p className="text-xs text-destructive">{errors.reach.message}</p>}
-          </div>
-        )}
       </div>
 
-      <Button type="submit" disabled={isSubmitting} className="gap-2">
+      <Button
+        type="submit"
+        disabled={isSubmitting}
+        className="gap-2 border-transparent hover:opacity-90"
+        style={{ backgroundColor: config.color, color: config.contrastColor }}
+      >
         {isSubmitting ? (
           <Loader2 className="size-4 animate-spin" />
         ) : (

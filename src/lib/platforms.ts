@@ -16,6 +16,9 @@ export interface PlatformConfig {
   /** Couleur de marque (icônes, nav ET courbes du graphique) — référence une
    *  variable CSS pour pouvoir s'adapter au mode sombre (ex: TikTok, Dailymotion). */
   color: string;
+  /** Couleur de texte lisible par-dessus `color` (blanc pour la plupart des
+   *  marques ; TikTok a besoin de la sienne, propre elle aussi au mode sombre). */
+  contrastColor: string;
   followersLabel: string;
   viewsLabel: string;
   reachLabel: string;
@@ -29,6 +32,7 @@ export const PLATFORMS: Record<Platform, PlatformConfig> = {
     label: "Instagram",
     icon: FaInstagram,
     color: "var(--brand-instagram)",
+    contrastColor: "#ffffff",
     followersLabel: "Abonnés",
     viewsLabel: "Vues",
     reachLabel: "Portée",
@@ -39,6 +43,7 @@ export const PLATFORMS: Record<Platform, PlatformConfig> = {
     label: "Facebook",
     icon: FaFacebook,
     color: "var(--brand-facebook)",
+    contrastColor: "#ffffff",
     followersLabel: "Abonnés",
     viewsLabel: "Vues",
     reachLabel: "Portée",
@@ -49,6 +54,7 @@ export const PLATFORMS: Record<Platform, PlatformConfig> = {
     label: "TikTok",
     icon: FaTiktok,
     color: "var(--brand-tiktok)",
+    contrastColor: "var(--brand-tiktok-contrast)",
     followersLabel: "Abonnés",
     viewsLabel: "Vues",
     reachLabel: "Portée",
@@ -59,6 +65,7 @@ export const PLATFORMS: Record<Platform, PlatformConfig> = {
     label: "WhatsApp",
     icon: FaWhatsapp,
     color: "var(--brand-whatsapp)",
+    contrastColor: "#ffffff",
     followersLabel: "Abonnés",
     viewsLabel: "Vues",
     reachLabel: "Portée",
@@ -69,6 +76,7 @@ export const PLATFORMS: Record<Platform, PlatformConfig> = {
     label: "YouTube",
     icon: FaYoutube,
     color: "var(--brand-youtube)",
+    contrastColor: "#ffffff",
     followersLabel: "Abonnés",
     viewsLabel: "Vues",
     reachLabel: "Portée",
@@ -79,6 +87,7 @@ export const PLATFORMS: Record<Platform, PlatformConfig> = {
     label: "Dailymotion",
     icon: FaDailymotion,
     color: "var(--brand-dailymotion)",
+    contrastColor: "#ffffff",
     followersLabel: "Abonnés",
     viewsLabel: "Vues",
     reachLabel: "Portée",

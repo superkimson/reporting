@@ -153,7 +153,7 @@ export function DashboardView({
 
       <Card>
         <CardHeader>
-          <CardTitle>Vues, réseaux sélectionnés</CardTitle>
+          <CardTitle>Vues par mois</CardTitle>
         </CardHeader>
         <CardContent>
           <EngagementChart data={engagementSeries} />
