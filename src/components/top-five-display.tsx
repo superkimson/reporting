@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { BlurredThumbnail } from "@/components/blurred-thumbnail";
 import { fetchTopFiveForMonth } from "@/actions/top-five";
 import { formatCompactNumber } from "@/lib/metrics";
 import type { TopFiveEntry } from "@/generated/prisma/client";
@@ -83,11 +84,10 @@ export function TopFiveDisplay({
               }`}
             >
               {entry ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
+                <BlurredThumbnail
                   src={entry.imageData}
                   alt={entry.name}
-                  className="absolute inset-0 size-full object-cover"
+                  className="absolute inset-0"
                 />
               ) : (
                 <Play className="size-5 text-muted-foreground/40" />

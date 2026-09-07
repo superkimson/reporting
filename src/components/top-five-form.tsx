@@ -16,6 +16,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import { BlurredThumbnail } from "@/components/blurred-thumbnail";
 import { MAX_TOP_FIVE_IMAGE_BYTES } from "@/lib/validation";
 import { saveTopFiveEntry, deleteTopFiveEntry, fetchTopFiveForMonth } from "@/actions/top-five";
 import type { TopFiveEntry } from "@/generated/prisma/client";
@@ -194,11 +195,10 @@ export function TopFiveForm() {
                 {loading ? (
                   <Loader2 className="size-4 animate-spin text-muted-foreground" />
                 ) : entry ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
+                  <BlurredThumbnail
                     src={entry.imageData}
                     alt={entry.name}
-                    className="absolute inset-0 size-full object-cover"
+                    className="absolute inset-0"
                   />
                 ) : (
                   <>
@@ -262,11 +262,10 @@ export function TopFiveForm() {
           {pending && (
             <div className="space-y-4">
               <div className="flex justify-center">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <BlurredThumbnail
                   src={pending.imageData}
                   alt="Aperçu"
-                  className="aspect-[9/16] w-32 rounded-md object-cover"
+                  className="aspect-[9/16] w-32 rounded-md"
                 />
               </div>
 
