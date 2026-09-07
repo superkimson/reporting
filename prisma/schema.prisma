@@ -74,3 +74,14 @@ model TopFiveEntry {
   @@unique([periodDate, position])
   @@index([periodDate])
 }
+
+// Trace les tentatives de connexion échouées pour limiter le bruteforce sur
+// /login (5 essais / 15 min / IP). Les lignes expirées sont purgées à la volée
+// à chaque vérification, pas besoin d'un job de nettoyage séparé.
+model LoginAttempt {
+  id        String   @id @default(cuid())
+  ip        String
+  createdAt DateTime @default(now())
+
+  @@index([ip, createdAt])
+}

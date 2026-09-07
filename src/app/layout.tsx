@@ -27,6 +27,8 @@ const spaceGrotesk = Space_Grotesk({
 export const metadata: Metadata = {
   title: "Social Dashboard",
   description: "Suivi des statistiques des réseaux sociaux",
+  // Outil interne : jamais indexé, même si robots.txt était ignoré.
+  robots: { index: false, follow: false },
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
