@@ -27,18 +27,22 @@ function formatMonthLabel(key: string) {
 
 export function TopFiveDisplay({
   initialMonth,
+  currentMonth,
   initialEntries,
   availableMonths,
 }: {
   initialMonth: Date;
+  currentMonth: Date;
   initialEntries: TopFiveEntry[];
   availableMonths: Date[];
 }) {
+  // Le mois en cours reste sélectionnable même s'il est vide ou incomplet.
   const monthOptions = useMemo(() => {
     const keys = new Set(availableMonths.map(toMonthKey));
     keys.add(toMonthKey(initialMonth));
+    keys.add(toMonthKey(currentMonth));
     return Array.from(keys).sort((a, b) => b.localeCompare(a));
-  }, [availableMonths, initialMonth]);
+  }, [availableMonths, initialMonth, currentMonth]);
 
   const [selectedMonth, setSelectedMonth] = useState(toMonthKey(initialMonth));
   const [entries, setEntries] = useState(initialEntries);
@@ -62,7 +66,7 @@ export function TopFiveDisplay({
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-lg font-semibold tracking-tight">Top 5 du mois</h2>
+        <h2 className="text-lg font-semibold tracking-tight">Top 5 du mois dernier</h2>
         <Select value={selectedMonth} onValueChange={handleMonthChange}>
           <SelectTrigger className="w-48">
             <SelectValue>{(value: string) => formatMonthLabel(value)}</SelectValue>

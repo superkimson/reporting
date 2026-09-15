@@ -1,25 +1,33 @@
 import { DashboardView } from "@/components/dashboard-view";
-import { getAllEntries, getTopFiveForMonth, getTopFiveMonths } from "@/lib/queries";
+import {
+  getAllEntries,
+  getTopFiveForMonth,
+  getTopFiveMonthSummaries,
+  pickDefaultTopFiveMonth,
+} from "@/lib/queries";
 import { isEditor } from "@/lib/auth";
 import { normalizePeriodDate } from "@/lib/metrics";
 
 export default async function DashboardPage() {
   const currentMonth = normalizePeriodDate(new Date().toISOString(), "MONTHLY");
 
-  const [entries, editor, topFiveEntries, topFiveMonths] = await Promise.all([
+  const [entries, editor, topFiveMonthSummaries] = await Promise.all([
     getAllEntries(),
     isEditor(),
-    getTopFiveForMonth(currentMonth),
-    getTopFiveMonths(),
+    getTopFiveMonthSummaries(),
   ]);
+
+  const topFiveMonth = pickDefaultTopFiveMonth(topFiveMonthSummaries, currentMonth);
+  const topFiveEntries = await getTopFiveForMonth(topFiveMonth);
 
   return (
     <DashboardView
       entries={entries}
       isEditor={editor}
-      topFiveMonth={currentMonth}
+      topFiveMonth={topFiveMonth}
+      currentMonth={currentMonth}
       topFiveEntries={topFiveEntries}
-      topFiveMonths={topFiveMonths}
+      topFiveMonths={topFiveMonthSummaries.map((summary) => summary.periodDate)}
     />
   );
 }

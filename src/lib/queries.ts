@@ -23,13 +23,32 @@ export async function getTopFiveForMonth(periodDate: Date): Promise<TopFiveEntry
   });
 }
 
-// Mois distincts ayant au moins une entrée Top 5, du plus récent au plus ancien
-// — alimente le menu déroulant "revoir les tops passés" du dashboard.
-export async function getTopFiveMonths(): Promise<Date[]> {
-  const entries = await prisma.topFiveEntry.findMany({
-    distinct: ["periodDate"],
+const TOP_FIVE_SLOTS = 5;
+
+export interface TopFiveMonthSummary {
+  periodDate: Date;
+  count: number;
+}
+
+// Mois ayant au moins une entrée Top 5, du plus récent au plus ancien, avec le
+// nombre d'emplacements remplis — alimente le menu déroulant du dashboard et
+// le choix du mois affiché par défaut.
+export async function getTopFiveMonthSummaries(): Promise<TopFiveMonthSummary[]> {
+  const groups = await prisma.topFiveEntry.groupBy({
+    by: ["periodDate"],
+    _count: { _all: true },
     orderBy: { periodDate: "desc" },
-    select: { periodDate: true },
   });
-  return entries.map((e) => e.periodDate);
+  return groups.map((group) => ({ periodDate: group.periodDate, count: group._count._all }));
+}
+
+// Mois affiché par défaut : le plus récent dont les 5 emplacements sont remplis
+// (le mois en cours s'il est déjà complet). À défaut, le plus récent qui a au
+// moins une entrée, sinon le mois en cours.
+export function pickDefaultTopFiveMonth(
+  summaries: TopFiveMonthSummary[],
+  currentMonth: Date
+): Date {
+  const complete = summaries.find((summary) => summary.count >= TOP_FIVE_SLOTS);
+  return complete?.periodDate ?? summaries[0]?.periodDate ?? currentMonth;
 }

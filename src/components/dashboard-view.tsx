@@ -31,12 +31,14 @@ export function DashboardView({
   entries,
   isEditor,
   topFiveMonth,
+  currentMonth,
   topFiveEntries,
   topFiveMonths,
 }: {
   entries: Entry[];
   isEditor: boolean;
   topFiveMonth: Date;
+  currentMonth: Date;
   topFiveEntries: TopFiveEntry[];
   topFiveMonths: Date[];
 }) {
@@ -176,6 +178,7 @@ export function DashboardView({
 
       <TopFiveDisplay
         initialMonth={topFiveMonth}
+        currentMonth={currentMonth}
         initialEntries={topFiveEntries}
         availableMonths={topFiveMonths}
       />
