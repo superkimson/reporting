@@ -7,13 +7,15 @@ import type { NextConfig } from "next";
 // nonce-based demanderait un middleware, hors scope pour l'instant.
 // React/Next.js dev mode utilise eval() pour le Fast Refresh et les stack
 // traces — jamais en production, donc l'assouplissement reste local au dev.
-// connect-src autorise data: car @react-pdf/renderer charge son moteur de
-// layout (yoga-layout, WebAssembly) via fetch() d'une data URI embarquée dans
-// le bundle — sans ça, les exports PDF échouent silencieusement.
+// Les exports PDF (@react-pdf/renderer) reposent sur yoga-layout, un moteur
+// compilé en WebAssembly : 'wasm-unsafe-eval' autorise sa compilation (et
+// uniquement du wasm, pas eval() JS), connect-src data: autorise son
+// chargement via fetch() d'une data URI embarquée dans le bundle. Sans les
+// deux, les exports PDF échouent.
 const scriptSrc =
   process.env.NODE_ENV === "production"
-    ? "script-src 'self' 'unsafe-inline'"
-    : "script-src 'self' 'unsafe-inline' 'unsafe-eval'";
+    ? "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'"
+    : "script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval'";
 
 const contentSecurityPolicy = [
   "default-src 'self'",

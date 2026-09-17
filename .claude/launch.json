@@ -4,9 +4,21 @@
     {
       "name": "reporting-dev",
       "runtimeExecutable": "/bin/bash",
-      "runtimeArgs": ["-c", "export PATH=/opt/homebrew/bin:$PATH && npm run dev"],
+      "runtimeArgs": [
+        "-c",
+        "export PATH=/opt/homebrew/bin:$PATH && npm run dev"
+      ],
       "port": 3000,
       "autoPort": true
+    },
+    {
+      "name": "reporting-prod",
+      "runtimeExecutable": "/bin/bash",
+      "runtimeArgs": [
+        "-c",
+        "export PATH=/opt/homebrew/bin:$PATH && npx next start -p 3100"
+      ],
+      "port": 3100
     }
   ]
 }
