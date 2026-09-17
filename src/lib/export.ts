@@ -1,4 +1,5 @@
 import Papa from "papaparse";
+import { toast } from "sonner";
 import type { Entry } from "@/generated/prisma/client";
 import { PLATFORMS, PERIOD_TYPE_LABELS } from "@/lib/platforms";
 import type { PlatformExportStats } from "@/lib/dashboard-metrics";
@@ -32,11 +33,23 @@ export function exportEntriesToCsv(entries: Entry[], filename = "statistiques.cs
   downloadBlob(new Blob([csv], { type: "text/csv;charset=utf-8;" }), filename);
 }
 
+// Les exports PDF sont déclenchés depuis un onClick sans await : sans ce
+// garde-fou, un échec (CSP, import dynamique, rendu) serait invisible.
+async function downloadPdf(render: () => Promise<Blob>, filename: string) {
+  try {
+    downloadBlob(await render(), filename);
+  } catch (error) {
+    console.error("Export PDF impossible :", error);
+    toast.error("L'export PDF a échoué. Réessaie ou contacte l'administrateur.");
+  }
+}
+
 export async function exportEntriesToPdf(entries: Entry[], filename = "statistiques.pdf") {
-  const { pdf } = await import("@react-pdf/renderer");
-  const { EntriesPdfDocument } = await import("@/components/entries-pdf-document");
-  const blob = await pdf(EntriesPdfDocument({ entries })).toBlob();
-  downloadBlob(blob, filename);
+  await downloadPdf(async () => {
+    const { pdf } = await import("@react-pdf/renderer");
+    const { EntriesPdfDocument } = await import("@/components/entries-pdf-document");
+    return pdf(EntriesPdfDocument({ entries })).toBlob();
+  }, filename);
 }
 
 export async function exportSummaryToPdf(
@@ -45,8 +58,9 @@ export async function exportSummaryToPdf(
   rangeLabel: string,
   filename = "recapitulatif.pdf"
 ) {
-  const { pdf } = await import("@react-pdf/renderer");
-  const { SummaryPdfDocument } = await import("@/components/summary-pdf-document");
-  const blob = await pdf(SummaryPdfDocument({ stats, editionLabel, rangeLabel })).toBlob();
-  downloadBlob(blob, filename);
+  await downloadPdf(async () => {
+    const { pdf } = await import("@react-pdf/renderer");
+    const { SummaryPdfDocument } = await import("@/components/summary-pdf-document");
+    return pdf(SummaryPdfDocument({ stats, editionLabel, rangeLabel })).toBlob();
+  }, filename);
 }

@@ -7,6 +7,9 @@ import type { NextConfig } from "next";
 // nonce-based demanderait un middleware, hors scope pour l'instant.
 // React/Next.js dev mode utilise eval() pour le Fast Refresh et les stack
 // traces — jamais en production, donc l'assouplissement reste local au dev.
+// connect-src autorise data: car @react-pdf/renderer charge son moteur de
+// layout (yoga-layout, WebAssembly) via fetch() d'une data URI embarquée dans
+// le bundle — sans ça, les exports PDF échouent silencieusement.
 const scriptSrc =
   process.env.NODE_ENV === "production"
     ? "script-src 'self' 'unsafe-inline'"
@@ -18,7 +21,7 @@ const contentSecurityPolicy = [
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data:",
   "font-src 'self' data:",
-  "connect-src 'self'",
+  "connect-src 'self' data:",
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",
