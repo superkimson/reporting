@@ -45,6 +45,9 @@ export type EntryFormValues = z.output<typeof entryFormSchema>;
 export const MAX_TOP_FIVE_IMAGE_BYTES = 2 * 1024 * 1024;
 
 export const topFiveEntrySchema = z.object({
+  // Présent quand on modifie une vidéo existante : permet de la déplacer vers
+  // un autre mois / emplacement sans créer de doublon.
+  id: z.string().min(1).optional(),
   periodDate: z.string().min(1, "Le mois est requis"),
   position: z.coerce.number().int().min(1).max(5),
   name: z.string().trim().min(1, "Le nom est requis").max(200),

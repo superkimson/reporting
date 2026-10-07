@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { BlurredThumbnail } from "@/components/blurred-thumbnail";
-import { formatNumber, parseNumberInput } from "@/lib/metrics";
+import { formatMonthLabel, formatNumber, parseNumberInput } from "@/lib/metrics";
 import { MAX_TOP_FIVE_IMAGE_BYTES } from "@/lib/validation";
 import { saveTopFiveEntry, deleteTopFiveEntry, fetchTopFiveForMonth } from "@/actions/top-five";
 import type { TopFiveEntry } from "@/generated/prisma/client";
@@ -41,6 +41,10 @@ function readFileAsDataUrl(file: File): Promise<string> {
 type SlotMap = Record<number, TopFiveEntry | undefined>;
 
 interface PendingUpload {
+  /** id de la vidéo existante quand on la modifie (absent pour un ajout). */
+  id?: string;
+  /** Mois cible ("2026-07") — modifiable uniquement pour une vidéo existante. */
+  month: string;
   position: number;
   imageData: string;
   name: string;
@@ -84,6 +88,8 @@ export function TopFiveForm() {
     const imageData = await readFileAsDataUrl(file);
     const existing = slots[position];
     setPending({
+      id: existing?.id,
+      month,
       position,
       imageData,
       name: existing?.name ?? "",
@@ -96,6 +102,8 @@ export function TopFiveForm() {
     const entry = slots[position];
     if (!entry) return;
     setPending({
+      id: entry.id,
+      month,
       position,
       imageData: entry.imageData,
       name: entry.name,
@@ -131,9 +139,16 @@ export function TopFiveForm() {
       return;
     }
 
+    if (!/^\d{4}-\d{2}$/.test(pending.month)) {
+      toast.error("Le mois est requis");
+      return;
+    }
+
     setIsSaving(true);
+    const moved = pending.id !== undefined && pending.month !== month;
     const result = await saveTopFiveEntry({
-      periodDate: `${month}-01`,
+      id: pending.id,
+      periodDate: `${pending.month}-01`,
       position: pending.position,
       name: pending.name.trim(),
       views,
@@ -143,7 +158,13 @@ export function TopFiveForm() {
     setIsSaving(false);
 
     if (result.success) {
-      toast.success("Vidéo ajoutée au Top 5");
+      toast.success(
+        moved
+          ? `Vidéo déplacée vers ${formatMonthLabel(pending.month)} (emplacement ${pending.position})`
+          : pending.id
+            ? "Vidéo modifiée"
+            : "Vidéo ajoutée au Top 5"
+      );
       const entries = await fetchTopFiveForMonth(`${month}-01`);
       const next: SlotMap = {};
       for (const entry of entries) next[entry.position] = entry;
@@ -279,7 +300,9 @@ export function TopFiveForm() {
               Détails de la vidéo
             </DialogTitle>
             <DialogDescription>
-              Emplacement {pending?.position} du Top 5 — {month}
+              {pending?.id
+                ? "Modifie les détails, ou déplace la vidéo vers un autre mois ou emplacement."
+                : `Emplacement ${pending?.position} du Top 5 — ${formatMonthLabel(month)}`}
             </DialogDescription>
           </DialogHeader>
 
@@ -292,6 +315,53 @@ export function TopFiveForm() {
                   className="aspect-[9/16] w-32 rounded-md"
                 />
               </div>
+
+              {pending.id && (
+                <div className="flex flex-wrap gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="top-five-entry-month">Mois</Label>
+                    <Input
+                      id="top-five-entry-month"
+                      type="month"
+                      className="w-40"
+                      value={pending.month}
+                      onChange={(event) =>
+                        setPending((prev) =>
+                          prev ? { ...prev, month: event.target.value } : prev
+                        )
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Emplacement</Label>
+                    <div
+                      role="radiogroup"
+                      aria-label="Emplacement"
+                      className="inline-flex items-center gap-0.5 rounded-lg bg-muted p-[3px]"
+                    >
+                      {POSITIONS.map((position) => (
+                        <button
+                          key={position}
+                          type="button"
+                          role="radio"
+                          aria-checked={pending.position === position}
+                          onClick={() =>
+                            setPending((prev) => (prev ? { ...prev, position } : prev))
+                          }
+                          className={cn(
+                            "size-7 rounded-md text-sm font-medium transition-colors",
+                            pending.position === position
+                              ? "bg-background text-foreground shadow-sm"
+                              : "text-muted-foreground hover:text-foreground"
+                          )}
+                        >
+                          {position}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div className="space-y-2">
                 <Label htmlFor="top-five-name">Nom de la vidéo</Label>

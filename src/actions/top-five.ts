@@ -3,13 +3,16 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { isEditor } from "@/lib/auth";
-import { normalizePeriodDate } from "@/lib/metrics";
+import { formatMonthLabel, normalizePeriodDate } from "@/lib/metrics";
 import { topFiveEntrySchema } from "@/lib/validation";
 import type { TopFiveEntry } from "@/generated/prisma/client";
 import type { ActionResult } from "@/actions/entries";
 
 // Enregistre (ou remplace) l'image d'un emplacement du Top 5 pour un mois donné.
+// Avec un `id`, modifie la vidéo existante — y compris son mois et son
+// emplacement — au lieu d'écraser ce qui occupe la cible.
 export async function saveTopFiveEntry(values: {
+  id?: string;
   periodDate: string;
   position: number;
   name: string;
@@ -30,6 +33,33 @@ export async function saveTopFiveEntry(values: {
   const periodDate = normalizePeriodDate(data.periodDate, "MONTHLY");
 
   try {
+    if (data.id) {
+      const occupant = await prisma.topFiveEntry.findUnique({
+        where: { periodDate_position: { periodDate, position: data.position } },
+        select: { id: true, name: true },
+      });
+      if (occupant && occupant.id !== data.id) {
+        return {
+          success: false,
+          error: `L'emplacement ${data.position} de ${formatMonthLabel(periodDate)} est déjà occupé par « ${occupant.name} »`,
+        };
+      }
+
+      await prisma.topFiveEntry.update({
+        where: { id: data.id },
+        data: {
+          periodDate,
+          position: data.position,
+          name: data.name,
+          views: data.views,
+          url: data.url,
+          imageData: data.imageData,
+        },
+      });
+      revalidatePath("/");
+      return { success: true };
+    }
+
     await prisma.topFiveEntry.upsert({
       where: {
         periodDate_position: { periodDate, position: data.position },
