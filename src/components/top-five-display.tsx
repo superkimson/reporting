@@ -103,22 +103,22 @@ export function TopFiveDisplay({
             </div>
           );
 
+          // Titre et vues au-dessus de la cover : toujours rendus (vides pour un
+          // emplacement libre) pour que les covers restent alignées sur une ligne.
           return (
             <div key={entry?.id ?? `empty-${index}`} className="space-y-2">
+              <div className="min-h-9">
+                <p className="truncate text-xs font-medium">{entry?.name ?? "\u00a0"}</p>
+                <p className="text-xs text-muted-foreground">
+                  {entry ? `${formatCompactNumber(entry.views)} vues` : "\u00a0"}
+                </p>
+              </div>
               {entry?.url ? (
                 <a href={entry.url} target="_blank" rel="noopener noreferrer">
                   {thumbnail}
                 </a>
               ) : (
                 thumbnail
-              )}
-              {entry && (
-                <div>
-                  <p className="truncate text-xs font-medium">{entry.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {formatCompactNumber(entry.views)} vues
-                  </p>
-                </div>
               )}
             </div>
           );

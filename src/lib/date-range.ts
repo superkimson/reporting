@@ -1,7 +1,6 @@
-export type RangeKey = "1M" | "3M" | "6M" | "YTD" | "1Y" | "MAX";
+export type RangeKey = "3M" | "6M" | "YTD" | "1Y" | "MAX";
 
 export const RANGE_OPTIONS: { key: RangeKey; label: string }[] = [
-  { key: "1M", label: "1M" },
   { key: "3M", label: "3M" },
   { key: "6M", label: "6M" },
   { key: "YTD", label: "YTD" },
@@ -10,7 +9,6 @@ export const RANGE_OPTIONS: { key: RangeKey; label: string }[] = [
 ];
 
 export const RANGE_DESCRIPTIONS: Record<RangeKey, string> = {
-  "1M": "Mois dernier et en cours",
   "3M": "3 derniers mois",
   "6M": "6 derniers mois",
   YTD: "Depuis janvier",
@@ -36,8 +34,6 @@ export function getRangeCutoff(range: RangeKey): string | null {
   const month = now.getMonth();
 
   switch (range) {
-    case "1M":
-      return ymString(year, month - 1);
     case "3M":
       return ymString(year, month - 3);
     case "6M":
@@ -53,8 +49,6 @@ export function getRangeCutoff(range: RangeKey): string | null {
 
 function rangeSpanMonths(range: RangeKey): number {
   switch (range) {
-    case "1M":
-      return 1;
     case "3M":
       return 3;
     case "6M":

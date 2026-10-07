@@ -211,6 +211,40 @@ export function TopFiveForm() {
           const entry = slots[position];
           return (
             <div key={position} className="space-y-2">
+              {/* Bloc titre/vues toujours présent (vide pour un emplacement libre)
+                  pour que les covers restent alignées sur une ligne. */}
+              <div className="min-h-9">
+                {entry && (
+                  <div className="flex items-start justify-between gap-1">
+                    <div className="min-w-0">
+                      <p className="truncate text-xs font-medium">{entry.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {formatNumber(entry.views)} vues
+                      </p>
+                    </div>
+                    <div className="flex shrink-0 items-center">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-xs"
+                        onClick={() => handleEditMeta(position)}
+                        aria-label="Modifier"
+                      >
+                        <Pencil className="size-3" />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-xs"
+                        onClick={() => handleRemove(position)}
+                        aria-label="Retirer"
+                      >
+                        <Trash2 className="size-3" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
               <div
                 onDragOver={(event) => event.preventDefault()}
                 onDrop={(event) => {
@@ -257,36 +291,6 @@ export function TopFiveForm() {
                 />
               </div>
 
-              {entry && (
-                <div className="flex items-start justify-between gap-1">
-                  <div className="min-w-0">
-                    <p className="truncate text-xs font-medium">{entry.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {formatNumber(entry.views)} vues
-                    </p>
-                  </div>
-                  <div className="flex shrink-0 items-center">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon-xs"
-                      onClick={() => handleEditMeta(position)}
-                      aria-label="Modifier"
-                    >
-                      <Pencil className="size-3" />
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon-xs"
-                      onClick={() => handleRemove(position)}
-                      aria-label="Retirer"
-                    >
-                      <Trash2 className="size-3" />
-                    </Button>
-                  </div>
-                </div>
-              )}
             </div>
           );
         })}
