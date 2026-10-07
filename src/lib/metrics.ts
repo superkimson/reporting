@@ -58,3 +58,19 @@ export function normalizePeriodDate(isoDate: string, periodType: "WEEKLY" | "MON
   const diffToMonday = day === 0 ? -6 : 1 - day;
   return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate() + diffToMonday));
 }
+
+// Valeur d'un <input type="month"> ("2026-03") pour une date de période
+// stockée en UTC (1er du mois à minuit).
+export function toMonthInputValue(date: Date): string {
+  return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}`;
+}
+
+// Libellé lisible d'un mois ("mars 2026") à partir d'une date de période UTC
+// ou d'une valeur de <input type="month"> ("2026-03").
+export function formatMonthLabel(value: Date | string): string {
+  const date = typeof value === "string" ? new Date(`${value.slice(0, 7)}-01T00:00:00Z`) : value;
+  if (Number.isNaN(date.getTime())) return "";
+  return new Intl.DateTimeFormat("fr-FR", { month: "long", year: "numeric", timeZone: "UTC" }).format(
+    date
+  );
+}

@@ -22,7 +22,12 @@ export const entryFormSchema = z.object({
   platform: z.enum(["INSTAGRAM", "FACEBOOK", "TIKTOK", "WHATSAPP", "YOUTUBE", "DAILYMOTION"]),
   edition: z.enum(["MA", "AG"]),
   periodType: z.enum(["WEEKLY", "MONTHLY"]),
-  periodDate: z.string().min(1, "La date est requise"),
+  // "2026-03" (input mois) ou "2026-03-15" (input date) — normalisé côté
+  // serveur au 1er du mois / lundi de la semaine par normalizePeriodDate().
+  periodDate: z
+    .string()
+    .min(1, "La date est requise")
+    .regex(/^\d{4}-\d{2}(-\d{2})?$/, "Date invalide"),
   followers: integerFromDisplay,
   views: integerFromDisplay,
   reach: z.preprocess(stripThousandsSeparator, z.number().int().min(0, "Doit être positif").optional()),

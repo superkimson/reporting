@@ -3,7 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Download, FileText, Trash2 } from "lucide-react";
+import { Download, FileText, Pencil, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -21,10 +21,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { EntryEditDialog } from "@/components/entry-edit-dialog";
 import { deleteEntry } from "@/actions/entries";
 import { exportEntriesToCsv, exportEntriesToPdf } from "@/lib/export";
 import { PLATFORMS, PLATFORM_LIST, PERIOD_TYPE_LABELS } from "@/lib/platforms";
-import { formatCompactNumber } from "@/lib/metrics";
+import { formatCompactNumber, formatMonthLabel } from "@/lib/metrics";
 import type { Entry } from "@/generated/prisma/client";
 import type { Platform } from "@/generated/prisma/enums";
 
@@ -42,6 +51,8 @@ export function EntriesTable({
   const router = useRouter();
   const [platformFilter, setPlatformFilter] = useState<Platform | "ALL">("ALL");
   const [isPending, startTransition] = useTransition();
+  const [editing, setEditing] = useState<Entry | null>(null);
+  const [deleting, setDeleting] = useState<Entry | null>(null);
 
   const filtered = useMemo(
     () =>
@@ -51,11 +62,22 @@ export function EntriesTable({
     [entries, platformFilter]
   );
 
-  function handleDelete(id: string) {
+  function describeEntry(entry: Entry) {
+    const period =
+      entry.periodType === "MONTHLY"
+        ? formatMonthLabel(entry.periodDate)
+        : `semaine du ${entry.periodDate.toISOString().slice(0, 10)}`;
+    return `${PLATFORMS[entry.platform].label} ${entry.edition}, ${period}`;
+  }
+
+  function confirmDelete() {
+    if (!deleting) return;
+    const target = deleting;
     startTransition(async () => {
-      const result = await deleteEntry(id);
+      const result = await deleteEntry(target.id);
       if (result.success) {
         toast.success("Saisie supprimée");
+        setDeleting(null);
         router.refresh();
       } else {
         toast.error(result.error ?? "Erreur lors de la suppression");
@@ -126,7 +148,7 @@ export function EntriesTable({
               <TableHead className="text-right">Abonnés</TableHead>
               <TableHead className="text-right">Vues</TableHead>
               <TableHead className="text-right">Portée</TableHead>
-              {isEditor && <TableHead className="w-10" />}
+              {isEditor && <TableHead className="w-20" />}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -165,15 +187,28 @@ export function EntriesTable({
                   </TableCell>
                   {isEditor && (
                     <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        disabled={isPending}
-                        onClick={() => handleDelete(entry.id)}
-                        aria-label="Supprimer"
-                      >
-                        <Trash2 className="size-3.5" />
-                      </Button>
+                      <div className="flex items-center justify-end">
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          disabled={isPending}
+                          onClick={() => setEditing(entry)}
+                          aria-label="Modifier"
+                          title="Modifier"
+                        >
+                          <Pencil className="size-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          disabled={isPending}
+                          onClick={() => setDeleting(entry)}
+                          aria-label="Supprimer"
+                          title="Supprimer"
+                        >
+                          <Trash2 className="size-3.5" />
+                        </Button>
+                      </div>
                     </TableCell>
                   )}
                 </TableRow>
@@ -182,6 +217,36 @@ export function EntriesTable({
           </TableBody>
         </Table>
       </div>
+
+      {isEditor && (
+        <>
+          <EntryEditDialog entry={editing} onClose={() => setEditing(null)} />
+
+          <Dialog open={deleting !== null} onOpenChange={(open) => !open && setDeleting(null)}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Supprimer cette saisie ?</DialogTitle>
+                <DialogDescription>
+                  {deleting && describeEntry(deleting)}. Cette action est irréversible.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={() => setDeleting(null)}>
+                  Annuler
+                </Button>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  disabled={isPending}
+                  onClick={confirmDelete}
+                >
+                  Supprimer
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </>
+      )}
     </div>
   );
 }
